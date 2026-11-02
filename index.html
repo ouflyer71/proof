@@ -22,7 +22,7 @@ section{background:var(--card);border-radius:14px;padding:12px;margin:12px 0}
 .ocrbar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:6px}.ocrbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
 .dots{text-align:center;margin-top:8px}.dots span{display:inline-block;width:10px;height:10px;border-radius:5px;background:var(--mut);margin:0 4px;opacity:.4}.dots span.on{opacity:1;background:var(--acc)}
 body.srch .homeonly{display:none!important}
-.addopt{font-size:21px;min-height:76px;box-sizing:border-box}.addopt .hint{display:block;font-size:15px;font-weight:400;opacity:.9;margin-top:4px}</style></head><body>
+.addopt{font-size:21px;min-height:76px;box-sizing:border-box}.addopt .hint{display:block;font-size:15px;font-weight:400;opacity:.9;margin-top:4px}.cands{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.cands:empty{display:none}.cands .lab{font-size:14px;color:var(--mut);align-self:center}.cand{font-size:16px;min-height:40px;min-width:0;padding:6px 12px;border-radius:999px;background:var(--card);color:var(--fg);border:2px solid var(--mut)}.cand[aria-pressed=true]{border-color:var(--acc);background:var(--acc);color:#fff}.chk{margin-top:6px;padding:8px 10px;border-radius:10px;border:2px dashed var(--mut);color:var(--fg);font-size:16px}</style></head><body>
 <div id="flash"></div>
 <h1><span><img src="icon-192.png" alt="" style="width:30px;height:30px;border-radius:7px;vertical-align:-6px"> ↩ Clock</span> <button class="sec" id="theme" aria-label="Light or dark">🌓</button></h1>
 <section id="welcome" style="display:none;border:2px solid var(--acc)"><div id="wSlide"></div><div class="dots" id="wDots"></div><div class="row"><button class="sec" id="wSkip">Skip</button><button id="wNext">Next</button></div></section>
@@ -33,7 +33,7 @@ body.srch .homeonly{display:none!important}
 <section class="homeonly"><b>🧾 All receipts</b> <span class="meta" id="cnt"></span><div id="all"></div></section>
 <section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p>
 <div class="row"><button class="sec" id="helpBtn">❓ How it works</button><a class="btn sec" href="privacy.html" style="text-decoration:none;color:var(--fg);font-size:19px;min-height:52px;padding:10px 16px;border-radius:10px;border:2px solid var(--mut);display:inline-flex;align-items:center;justify-content:center;font-weight:600">🔒 Privacy</a></div></section>
-<p class="meta" id="ver" style="text-align:center">↩ Clock · v3</p>
+<p class="meta" id="ver" style="text-align:center">↩ Clock · v4</p>
 
 <div class="sheet" id="as"><div class="bd" data-close></div><div class="pn" role="dialog" aria-label="Add receipt"><h2 style="margin-top:0">Add a receipt</h2>
 <label class="btn addopt" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:16px">📷 Take photo<input id="cam" type="file" accept="image/*" capture="environment" hidden><span class="hint">Snap a paper receipt</span></label>
@@ -41,10 +41,10 @@ body.srch .homeonly{display:none!important}
 <button class="sec" data-close style="display:block;width:100%">Cancel</button></div></div>
 <div class="sheet" id="fs"><div class="bd" data-close></div><div class="pn">
 <h2 id="fTitle" style="margin:4px 0">New receipt</h2><img id="fImg" class="big" alt="" style="max-height:30vh">
-<div id="ocrBox" class="meta" style="display:none"><span id="ocrMsg">Reading receipt on your phone…</span><div class="ocrbar"><i id="ocrBar"></i></div></div>
-<label class="f" for="fItem">What did you buy?</label><input id="fItem" placeholder="Cordless drill">
-<label class="f" for="fStore">Store</label><input id="fStore" placeholder="Lowe's">
-<div class="row"><div><label class="f" for="fDate">Date</label><input id="fDate" type="date"></div><div><label class="f" for="fTotal">Total $</label><input id="fTotal" inputmode="decimal" placeholder="0.00"></div></div>
+<div id="ocrBox" class="meta" style="display:none"><span id="ocrMsg">Reading receipt on your phone…</span><div id="ocrHint" class="chk" style="display:none">🔎 Check these. Tap a suggestion below a box to fix it.</div><div class="ocrbar"><i id="ocrBar"></i></div></div>
+<label class="f" for="fItem">What did you buy?</label><input id="fItem" placeholder="Cordless drill"><div class="cands" id="cItem"></div>
+<label class="f" for="fStore">Store</label><input id="fStore" placeholder="Lowe's"><div class="cands" id="cStore"></div>
+<div class="row"><div><label class="f" for="fDate">Date</label><input id="fDate" type="date"></div><div><label class="f" for="fTotal">Total $</label><input id="fTotal" inputmode="decimal" placeholder="0.00"></div></div><div class="cands" id="cDate"></div><div class="cands" id="cTotal"></div>
 <label class="f">Return window</label><div class="chips" id="retC"></div><input id="fRet" inputmode="numeric" placeholder="days" style="display:none">
 <label class="f">Warranty</label><div class="chips" id="warC"></div><input id="fWar" inputmode="numeric" placeholder="months" style="display:none">
 <label class="f" for="fNote">Notes <span class="meta">(serial #, model, anything)</span></label><input id="fNote">
@@ -58,7 +58,7 @@ body.srch .homeonly{display:none!important}
 <div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've used your 10 free receipts!</h2><p><b>Unlock unlimited receipts: $4.99 one-time.</b><br>Pay once, keep it forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock for $4.99 (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
 
 <script>
-const APPV='v3',FREE_LIMIT=10;
+const APPV='v4',FREE_LIMIT=10;
 // Testing toggle: set to false, or open the app once with ?nolimit (stored), to turn the free limit off. ?limit turns it back on.
 let LIMIT_ON=true;try{const s=new URLSearchParams(location.search);if(s.has('nolimit'))localStorage.setItem('proof.nolimit','1');if(s.has('limit'))localStorage.removeItem('proof.nolimit');if(localStorage.getItem('proof.nolimit')==='1')LIMIT_ON=false}catch(e){}
 const $=id=>document.getElementById(id),DAY=864e5;
@@ -79,6 +79,7 @@ function addM(d,m){const x=new Date(d);x.setMonth(x.getMonth()+m);return x}
 function retEnd(r){const d=pd(r.date);return d&&r.ret>0?new Date(d.getTime()+r.ret*DAY):null}
 function warEnd(r){const d=pd(r.date);return d&&r.war>0?addM(d,r.war):null}
 function left(e){return e?Math.round((e-today())/DAY):null}
+['fItem','fStore','fTotal','fDate'].forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.touched=1;$(i).dataset.auto=''}));
 function fmtD(d){return d?d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):''}
 function pill(label,e){const n=left(e);if(n==null)return'';const c=n<0?'':n<=7?'b':n<=30?'w':'g';return '<span class="pill '+c+'">'+label+': '+(n<0?'ended':n===0?'today':n+'d left')+'</span>'}
 function soonest(r){const ns=[left(retEnd(r)),left(warEnd(r))].filter(n=>n!=null&&n>=0);return ns.length?Math.min(...ns):null}
@@ -112,19 +113,78 @@ function loadScript(src){return new Promise((ok,no)=>{if(window.Tesseract)return
 async function getWorker(){if(worker)return worker;await loadScript('ocr/tesseract.min.js');const base=new URL('ocr/',location.href).href;
  worker=await Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:base+'core',langPath:base+'lang',workerBlobURL:false,cacheMethod:'none',logger:m=>{if(m.status==='recognizing text')$('ocrBar').style.width=Math.round(m.progress*100)+'%'}});return worker}
 async function ocr(dataUrl){const w=await getWorker();const r=await w.recognize(dataUrl);return r.data.text||''}
-const MON={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
-function parseReceipt(text){const lines=text.split(/\n/).map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);const amt=/\$?\s?(\d{1,5}[.,]\d{2})\b/;const out={};
- out.store=(lines.find(l=>/[A-Za-z]{3}/.test(l)&&!/\d{3,}/.test(l)&&!/receipt|welcome|thank|store #|tel|phone/i.test(l))||'').replace(/[^\w&'’ .-]/g,'').trim();
- const tl=lines.filter(l=>/total|amount due|balance|grand/i.test(l)&&!/sub\s?-?total|tax|savings|items?\b/i.test(l)&&amt.test(l));
- let tot=tl.length?tl[tl.length-1].match(amt)[1]:null;if(!tot){const all=lines.flatMap(l=>[...l.matchAll(/\d{1,5}[.,]\d{2}\b/g)].map(m=>parseFloat(m[0].replace(',','.'))));if(all.length)tot=Math.max(...all).toFixed(2)}out.total=tot?tot.replace(',','.'):'';
- let d=null,m;const T=text;
- if(m=T.match(/\b(20\d\d)[-\/.](\d{1,2})[-\/.](\d{1,2})\b/))d=[+m[1],+m[2],+m[3]];
- else if(m=T.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/)){let y=+m[3];if(y<100)y+=2000;d=[y,+m[1],+m[2]];if(d[1]>12)d=[y,+m[2],+m[1]]}
- else if(m=T.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(20\d\d)\b/i))d=[+m[3],MON[m[1].toLowerCase()],+m[2]];
- if(d&&d[1]>=1&&d[1]<=12&&d[2]>=1&&d[2]<=31)out.date=d[0]+'-'+String(d[1]).padStart(2,'0')+'-'+String(d[2]).padStart(2,'0');
- const it=lines.find(l=>amt.test(l)&&/[A-Za-z]{3}/.test(l)&&!/total|tax|change|cash|visa|master|debit|credit|card|balance|due|tender|savings|discount|amex|auth/i.test(l));
- if(it)out.item=it.replace(/\$?\s?\d{1,5}[.,]\d{2}.*$/,'').replace(/\b\d{5,}\b/g,'').replace(/^[^A-Za-z]+/,'').replace(/\s+[A-Z]$/,'').replace(/[^A-Za-z0-9)"]+$/,'').trim();
+// ---------- image prep (all on the phone) ----------
+function loadImg(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{ok(im);setTimeout(()=>URL.revokeObjectURL(u),0)};im.onerror=()=>{URL.revokeObjectURL(u);no(new Error('img'))};im.src=u})}
+function prepCanvas(im,opt={}){const T=opt.target||2200;let w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;
+ // pass 1: small gray copy to find the paper
+ const sk=Math.min(1,400/Math.max(w,h)),sw=Math.max(1,Math.round(w*sk)),sh=Math.max(1,Math.round(h*sk));const s=document.createElement('canvas');s.width=sw;s.height=sh;const sx=s.getContext('2d',{willReadFrequently:true});sx.drawImage(im,0,0,sw,sh);
+ const sd=sx.getImageData(0,0,sw,sh).data,g=new Uint8Array(sw*sh);for(let i=0;i<g.length;i++)g[i]=(sd[i*4]*77+sd[i*4+1]*150+sd[i*4+2]*29)>>8;
+ const ot=otsu(g);let x0=0,y0=0,x1=sw,y1=sh;
+ if(opt.crop!==false){const col=new Float32Array(sw),row=new Float32Array(sh);const th=Math.max(ot,110);for(let y=0;y<sh;y++)for(let x=0;x<sw;x++)if(g[y*sw+x]>th){col[x]++;row[y]++}
+  const stat=(i,isCol)=>{let a=0,b=0,n=isCol?sh:sw;for(let j=0;j<n;j++){const v=isCol?g[j*sw+i]:g[i*sw+j];a+=v;b+=v*v}const m=a/n;return [m,Math.sqrt(Math.max(0,b/n-m*m))]};
+  const bg=(i,isCol,cnt,n)=>{if(cnt/n>=.12)return false;const [m,sd]=stat(i,isCol);return m<95&&sd<38};
+  while(x0<sw-1&&bg(x0,1,col[x0],sh))x0++;while(x1>x0+1&&bg(x1-1,1,col[x1-1],sh))x1--;while(y0<sh-1&&bg(y0,0,row[y0],sw))y0++;while(y1>y0+1&&bg(y1-1,0,row[y1-1],sw))y1--;
+  // only crop if paper is a clear bright region and big enough
+  if((x1-x0)*(y1-y0)<sw*sh*.2){x0=0;y0=0;x1=sw;y1=sh}else{const p=Math.round(Math.max(sw,sh)*.03);x0=Math.max(0,x0-p);y0=Math.max(0,y0-p);x1=Math.min(sw,x1+p);y1=Math.min(sh,y1+p)}}
+ const cx=x0/sk,cy=y0/sk,cw=(x1-x0)/sk,ch=(y1-y0)/sk;const k=Math.min(opt.maxUp||2.5,T/Math.max(cw,ch));const W=Math.round(cw*k),H=Math.round(ch*k);
+ const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d',{willReadFrequently:true});x.imageSmoothingQuality='high';x.drawImage(im,cx,cy,cw,ch,0,0,W,H);
+ const id=x.getImageData(0,0,W,H),d=id.data,n=W*H,G=new Uint8ClampedArray(n);for(let i=0;i<n;i++)G[i]=(d[i*4]*77+d[i*4+1]*150+d[i*4+2]*29)>>8;
+ // auto-contrast (1%..99%)
+ const hist=new Uint32Array(256);for(let i=0;i<n;i++)hist[G[i]]++;let lo=0,hi=255,a=0;while(a+hist[lo]<n*.01)a+=hist[lo++];a=0;while(a+hist[hi]<n*.01&&hi>lo+1)a+=hist[hi--];const sc=255/Math.max(1,hi-lo);for(let i=0;i<n;i++)G[i]=(G[i]-lo)*sc;
+ if(opt.bin!==false){// Bradley adaptive threshold via integral image
+  const S=new Float64Array((W+1)*(H+1));for(let y=1;y<=H;y++){let r=0;for(let x2=1;x2<=W;x2++){r+=G[(y-1)*W+x2-1];S[y*(W+1)+x2]=S[(y-1)*(W+1)+x2]+r}}
+  const R=Math.max(8,Math.round(Math.max(W,H)/40)),t=opt.t||0.15;
+  for(let y=0;y<H;y++){const ya=Math.max(0,y-R),yb=Math.min(H,y+R+1);for(let x2=0;x2<W;x2++){const xa=Math.max(0,x2-R),xb=Math.min(W,x2+R+1);const cnt=(yb-ya)*(xb-xa);const sum=S[yb*(W+1)+xb]-S[ya*(W+1)+xb]-S[yb*(W+1)+xa]+S[ya*(W+1)+xa];G[y*W+x2]=G[y*W+x2]*cnt<sum*(1-t)?0:255}}}
+ for(let i=0;i<n;i++){d[i*4]=d[i*4+1]=d[i*4+2]=G[i];d[i*4+3]=255}x.putImageData(id,0,0);return c}
+function otsu(g){const h=new Float64Array(256);for(const v of g)h[v]++;const n=g.length;let sum=0;for(let i=0;i<256;i++)sum+=i*h[i];let sB=0,wB=0,best=0,th=128;for(let i=0;i<256;i++){wB+=h[i];if(!wB)continue;const wF=n-wB;if(!wF)break;sB+=i*h[i];const mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>best){best=v;th=i}}return th}
+// ---------- parsing ----------
+const STORES=["Walmart","Target","Costco","Sam's Club","Home Depot","Lowe's","Best Buy","Kroger","Walgreens","CVS","Rite Aid","Dollar General","Dollar Tree","Family Dollar","Aldi","Publix","Safeway","Albertsons","H-E-B","Meijer","Whole Foods","Trader Joe's","Kohl's","Macy's","JCPenney","Nordstrom","TJ Maxx","Marshalls","Ross","Burlington","Old Navy","Gap","Bed Bath & Beyond","Staples","Office Depot","OfficeMax","Apple","Microsoft","GameStop","Academy Sports","Dick's Sporting Goods","Bass Pro Shops","Cabela's","Tractor Supply","Atwoods","Harbor Freight","Ace Hardware","True Value","Menards","AutoZone","O'Reilly Auto Parts","Advance Auto Parts","NAPA","Petco","PetSmart","IKEA","Wayfair","Amazon","eBay","Ulta","Sephora","Bath & Body Works","Victoria's Secret","Foot Locker","Famous Footwear","DSW","Hobby Lobby","Michaels","Joann","At Home","HomeGoods","Big Lots","Ollie's","Five Below","Sherwin-Williams","Verizon","AT&T","T-Mobile","Cricket","Reasor's","Homeland","Crest Foods","Buc-ee's","QuikTrip","OnCue","Casey's","Love's","Sonic","Chick-fil-A","McDonald's","Starbucks","Service Oklahoma","Oklahoma Tax Commission","DMV","USPS","UPS Store","FedEx Office","Goodyear","Discount Tire","Firestone","Jiffy Lube","Carvana","CarMax"];
+const MONS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
+const BRANDS=/\b(tesla|ford|chevrolet|chevy|gmc|ram|dodge|jeep|toyota|honda|nissan|hyundai|kia|subaru|mazda|bmw|mercedes|audi|lexus|volkswagen|vw|buick|cadillac|chrysler|lincoln|polaris|kubota|john deere|yamaha|harley|dewalt|milwaukee|makita|ryobi|craftsman|stihl|husqvarna|samsung|lg|sony|apple|iphone|ipad|macbook|dell|hp|lenovo|vizio|tcl|whirlpool|ge|frigidaire|kitchenaid|maytag|dyson|shark|traeger|weber|yeti)\b/i;
+const NOT_ITEM=/total|tax\b|change|cash|visa|master|debit|credit|card|balance|due|tender|savings|discount|amex|auth|approv|terminal|trace|batch|ref no|trans|entry|subtotal|fee:|thank|receipt|store #|phone|tel\b|www|\.com|p\.?o\.? box|description|amount paid/i;
+const normLine=l=>l.replace(/[|_~“”"]+/g,' ').replace(/\s+/g,' ').trim();
+const fixNum=l=>l.replace(/(^|\s)[sS§](?=\d[\d,]*\.\d{2}\b)/g,'$1$').replace(/(\d),(\d{2})(?!\d)/g,'$1.$2');
+function amounts(l){const out=[];const re=/\$?\s?(\d{1,3}(?:[,.]\d{3})+|\d{1,6})[.](\d{2})(?!\d)/g;let m;const s=fixNum(l);while(m=re.exec(s)){const v=parseFloat(m[1].replace(/[,.]/g,'')+'.'+m[2]);if(v>0&&v<1e6)out.push(v)}return out}
+function money(v){return v.toFixed(2)}
+function isoD(y,m,d){if(y<100)y+=2000;if(m<1||m>12||d<1||d>31||y<2000||y>2099)return null;return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
+function parseReceipt(text,opt={}){const raw=text.split(/\n/).map(normLine).filter(Boolean);const L=raw.length;const out={cand:{}};
+ // ---- total
+ const TL=/\b(t?otal|grand total|amount paid|amt paid|amount charged|charged|amount due|balance due|balance|amount|paid)\b/i,BAD=/sub\s*-?\s*t?otal|\btax\b|savings|discount|you saved|change|tip\b|fee\b/i;
+ const tc=new Map();const add=(v,s)=>{const k=money(v);const o=tc.get(k)||{s:0,n:0};o.s=Math.max(o.s,s);if(s>=7)o.n++;tc.set(k,o)};
+ raw.forEach((l,i)=>{let a=amounts(l);if(/sub\s*-?\s*t?otal/i.test(l))a.forEach(v=>{const k=money(v);const o=tc.get(k)||{s:1,n:0};o.n++;tc.set(k,o)});const isT=TL.test(l)&&!BAD.test(l);if(isT){let s=/t?otal\b|amount paid|charged/i.test(l)?10:7;if(!a.length&&i+1<L)a=amounts(raw[i+1]);a.forEach(v=>add(v,s+v/1e7))}else a.forEach(v=>add(v,1+v/1e7))});
+ // prefer the largest amount among the strongest (total-labelled) lines
+ const tl=[...tc.entries()].map(([k,o])=>[k,o.s+(o.n>1?2*(o.n-1):0)]).sort((a,b)=>b[1]-a[1]||parseFloat(b[0])-parseFloat(a[0]));if(tl.length){const top=tl[0][1];const best=tl.filter(e=>e[1]>=top-1&&e[1]>=7).sort((a,b)=>parseFloat(b[0])-parseFloat(a[0]));const pick=best.length?best[0]:tl[0];out.total=pick[0];out.cand.total=[...new Set([pick[0],...tl.map(e=>e[0])])].slice(0,3);out.totalSure=pick[1]>=7&&!best.some(e=>e!==pick&&e[1]>=pick[1]-1)}
+ // ---- dates
+ const dc=new Map();const addD=(d,s)=>{if(!d)return;const t=new Date(d+'T12:00');const now=Date.now();if(t-now>2*864e5||now-t>15*365*864e5)return;dc.set(d,(dc.get(d)||0)+s)};
+ raw.forEach(l=>{const near=/date|issued|purchased|sold|trans/i.test(l)?1:0;let m;
+  const r1=/\b(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?\s*(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(20\d\d)\b/gi;while(m=r1.exec(l))addD(isoD(+m[3],MONS[m[1].toLowerCase()],+m[2]),3+near);
+  const r2=/\b(\d{1,2})\s?(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?\s*,?\s*(20\d\d)\b/gi;while(m=r2.exec(l))addD(isoD(+m[3],MONS[m[2].toLowerCase()],+m[1]),3+near);
+  const r3=/\b(20\d\d)[-\/.](\d{1,2})[-\/.](\d{1,2})\b/g;while(m=r3.exec(l))addD(isoD(+m[1],+m[2],+m[3]),2+near);
+  const r4=/(?:^|[^\d])(\d{1,2})\s?[\/\-.]\s?(\d{1,2})\s?[\/\-.]\s?(\d{4}|\d{2})(?!\d)/g;while(m=r4.exec(l)){const y=+m[3],a=+m[1],b=+m[2];addD(a<=12?isoD(y,a,b):isoD(y,b,a),(m[3].length===4?2:1)+near)}});
+ const dl=[...dc.entries()].sort((a,b)=>b[1]-a[1]);if(dl.length){out.date=dl[0][0];out.cand.date=dl.slice(0,3).map(e=>e[0]);out.dateSure=dl[0][1]>=4&&!(dl[1]&&dl[1][1]>=dl[0][1])}
+ // ---- store
+ const sc=[];const lower=text.toLowerCase();
+ for(const s of STORES){const k=s.toLowerCase().replace(/[’']/g,"'");const re=new RegExp('(^|[^a-z])'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"['’]?").replace(/ /g,'\\s*')+'([^a-z]|$)','i');const i=raw.findIndex(l=>re.test(l));if(i>=0)sc.push([s,20-Math.min(10,i/L*10)])}
+ raw.forEach((l,i)=>{const c=l.replace(/^[^A-Za-z]+/,'').replace(/[^A-Za-z0-9&'’. -]/g,'').replace(/\s+/g,' ').trim();const letters=(c.match(/[A-Za-z]/g)||[]).length;if(letters<5||letters/c.length<.6||NOT_ITEM.test(c)||/\d{4,}/.test(c)||/\d\.\d{2}\b/.test(l)||/^agency$/i.test(c))return;
+  const pos=i/L;let s=0;if(/\b(agency|store|stores|inc|llc|co|company|market|mart|pharmacy|hardware|supply|depot|outlet|services?|motors|auto|tire|feed|foods?|grocery|center|shop)\b/i.test(c))s+=6;if(pos<.25)s+=4-pos*8;if(/\b(st|street|rd|road|ave|blvd|hwy|suite|ok|tx|ks|ar|mo)\b\.?\s*\d*$/i.test(c)||/^\d/.test(l))s-=6;
+  if(s>2)sc.push([c.replace(/^\d+\s*-\s*/,'').replace(/\b([A-Z])([A-Z]+)\b/g,(m,a,b)=>a+b.toLowerCase()),s])});
+ const seen=new Set(),st=sc.sort((a,b)=>b[1]-a[1]).filter(([s])=>{const k=s.toLowerCase();if([...seen].some(x=>x.includes(k)||k.includes(x)))return false;seen.add(k);return true});
+ st.splice(1,9,...st.slice(1).filter(e=>e[1]>=6));if(st.length){out.store=st[0][0];out.cand.store=st.slice(0,3).map(e=>e[0]);out.storeSure=st[0][1]>=10}
+ // ---- item
+ const ic=[];const veh=/regist|tag agency|decal|title fee|excise/i.test(text);
+ raw.forEach(l=>{let m=l.match(/(?:^|\D|\d{0,2}?)((?:19|20)\d\d)\s+([A-Za-z][A-Za-z-]+(?:\s+[A-Za-z0-9-]+){0,4})/);if(m&&BRANDS.test(m[2])){let s=m[1]+' '+m[2].replace(/\b(\w)(\w*)/g,(x,a,b)=>a.toUpperCase()+b.toLowerCase()).replace(/\bMotors\b/,'').replace(/\s+/g,' ').trim();if(veh)s+=' registration';ic.push([s.replace(/\s+[-–]\s*/g," ").replace(/\s+/g," "),20])}});
+ raw.forEach((l,i)=>{if(NOT_ITEM.test(l))return;const a=amounts(l);if(!a.length)return;let c=fixNum(l).replace(/\$?\s?\d[\d,]*\.\d{2}.*$/,'').replace(/\b\d{5,}\b/g,'').replace(/^[^A-Za-z]+/,'').replace(/\s+[A-Z]$/,'').replace(/[^A-Za-z0-9)"]+$/,'').trim();const letters=(c.match(/[A-Za-z]/g)||[]).length;if(letters<4||letters/c.length<.55)return;ic.push([c,5+(BRANDS.test(c)?6:0)+Math.min(3,c.length/10)-i/L])});
+ const s2=[],it=ic.sort((a,b)=>b[1]-a[1]).filter(([s])=>{const k=s.toLowerCase();if(s2.some(x=>x.startsWith(k)||k.startsWith(x)))return false;s2.push(k);return true});
+ if(it.length){out.item=it[0][0];out.cand.item=it.slice(0,3).map(e=>e[0]);out.itemSure=it[0][1]>=10}
  return out}
+// ---------- read: prep + OCR passes, merged ----------
+async function readReceipt(file,onStep){const im=await loadImg(file);const w=await getWorker();const t0=performance.now();const passes=[];
+ const run=async(o,psm)=>{const c=prepCanvas(im,o);await w.setParameters({tessedit_pageseg_mode:String(psm)});const r=await w.recognize(c);passes.push({o,txt:r.data.text||'',conf:r.data.confidence||0})};
+ const weak=p=>!(p.total&&p.date&&p.store&&p.item)||!p.totalSure;
+ const P=[[{bin:false,target:2200,maxUp:1.5},3],[{bin:false,target:1600,maxUp:1.5},6],[{bin:true,target:1600,maxUp:1.5},6]];let txt='',p={cand:{}};
+ for(let i=0;i<P.length;i++){if(i&&(!weak(p)||performance.now()-t0>7000))break;onStep&&onStep(i+1,p);await run(P[i][0],P[i][1]);txt=passes.map(x=>x.txt).join('\n');p=parseReceipt(txt)}
+ const conf=Math.max(...passes.map(x=>x.conf));p.conf=Math.round(conf);p.unsure=conf<70||!p.totalSure||!p.dateSure||!p.store||!p.item;p.passes=passes.length;p.ms=Math.round(performance.now()-t0);return {txt,p}}
+
 window.parseReceipt=parseReceipt;
 // ---------- add / edit form ----------
 const RET=[['None',0],['14d',14],['30d',30],['60d',60],['90d',90],['Other','c']],WAR=[['None',0],['90d',3],['1 yr',12],['2 yr',24],['Custom','c']];
@@ -132,13 +192,23 @@ let editing=null,draftImg=null;
 function chips(el,opts,input,unit){$(el).innerHTML=opts.map(([l,v])=>'<button type="button" class="chip" data-v="'+v+'">'+l+'</button>').join('');$(el).onclick=e=>{const b=e.target.closest('.chip');if(!b)return;setChip(el,input,b.dataset.v);if(b.dataset.v==='c')$(input).focus()}}
 function setChip(el,input,v){const bs=[...$(el).children];let hit=bs.find(b=>b.dataset.v===String(v));if(!hit){hit=bs[bs.length-1];}bs.forEach(b=>b.setAttribute('aria-pressed',b===hit));$(input).style.display=hit.dataset.v==='c'?'':'none';if(hit.dataset.v!=='c')$(input).value=v;else if(v!=='c')$(input).value=v}
 chips('retC',RET,'fRet');chips('warC',WAR,'fWar');
-function fillForm(r){$('fItem').value=r.item||'';$('fStore').value=r.store||'';$('fDate').value=r.date||iso(today());$('fTotal').value=r.total||'';$('fNote').value=r.note||'';setChip('retC','fRet',r.ret??30);setChip('warC','fWar',r.war??12);$('fImg').src=r.img||'';$('fImg').style.display=r.img?'':'none'}
-async function startAdd(file){if(!file)return;if(LIMIT_ON&&recs.length>=FREE_LIMIT){openSheet('us');return}
+function fillForm(r){['cItem','cStore','cDate','cTotal'].forEach(i=>$(i).innerHTML='');$('ocrHint').style.display='none';$('fItem').value=r.item||'';$('fStore').value=r.store||'';$('fDate').value=r.date||iso(today());$('fTotal').value=r.total||'';$('fNote').value=r.note||'';setChip('retC','fRet',r.ret??30);setChip('warC','fWar',r.war??12);$('fImg').src=r.img||'';$('fImg').style.display=r.img?'':'none'}
+async function startAdd(file){if(!file)return;['cItem','cStore','cDate','cTotal'].forEach(i=>$(i).innerHTML='');$('ocrHint').style.display='none';['fItem','fStore','fTotal','fDate'].forEach(i=>{$(i).dataset.auto='';delete $(i).dataset.touched});if(LIMIT_ON&&recs.length>=FREE_LIMIT){openSheet('us');return}
  editing=null;$('fTitle').textContent='New receipt';$('delZone').style.display='none';let img;try{img=await resize(file)}catch(e){flash('Could not open that photo.');return}draftImg=img;fillForm({img});openSheet('fs');
  $('ocrBox').style.display='block';$('ocrMsg').textContent='Reading receipt on your phone… (nothing is uploaded)';$('ocrBar').style.width='0';
- try{const t0=Date.now();const txt=await ocr(img);const p=parseReceipt(txt);window.__lastOCR={txt,p,ms:Date.now()-t0};
-  if(editing===null&&draftImg===img){for(const[k,f]of[['item','fItem'],['store','fStore'],['total','fTotal']])if(p[k]&&!$(f).value)$(f).value=p[k];if(p.date)$('fDate').value=p.date;$('ocrMsg').textContent='✅ Filled in what I could read. Check it and fix anything off.';$('ocrBar').style.width='100%'}}
+ try{const t0=Date.now();const mine=()=>editing===null&&draftImg===img;
+  const apply=(p,final)=>{if(!mine())return;const F={item:'fItem',store:'fStore',total:'fTotal'};for(const k in F){const el=$(F[k]);if(p[k]&&(!el.value||el.dataset.auto===el.value)){el.value=p[k];el.dataset.auto=p[k]}}
+   if(p.date&&($('fDate').dataset.auto===$('fDate').value||!$('fDate').dataset.touched)){$('fDate').value=p.date;$('fDate').dataset.auto=p.date}showCands(p.cand||{})};
+  const r=await readReceipt(file,(i,p)=>{if(!mine())return;if(p&&p.total)apply(p);$('ocrMsg').textContent=i===1?'Reading receipt on your phone… (nothing is uploaded)':'Taking a closer look… (pass '+i+' of 3)';$('ocrBar').style.width=Math.round((i-1)/3*100)+'%'});
+  window.__lastOCR={txt:r.txt,p:r.p,ms:Date.now()-t0};
+  if(mine()){apply(r.p,true);$('ocrMsg').textContent=r.p.unsure?'Read what I could.':'✅ Filled in what I could read. Check it and fix anything off.';$('ocrHint').style.display=r.p.unsure?'':'none';$('ocrBar').style.width='100%'}}
  catch(e){console.warn(e);$('ocrMsg').textContent='Couldn\u2019t read it automatically. Just type the details.'}}
+function fmtD(d){try{return new Date(d+'T12:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function showCands(c){const M=[['cItem','fItem',c.item,x=>x],['cStore','fStore',c.store,x=>x],['cDate','fDate',c.date,fmtD],['cTotal','fTotal',c.total,x=>'$'+Number(x).toLocaleString(undefined,{minimumFractionDigits:2})]];
+ for(const[box,f,list,fmt]of M){const el=$(box);const L=(list||[]).filter(Boolean).slice(0,3);if(L.length<2&&!(L.length===1&&$(f).value!==L[0])){el.innerHTML='';continue}
+  const lab={cItem:'Item?',cStore:'Store?',cDate:'Date?',cTotal:'Total?'}[box];
+  el.innerHTML='<span class="lab">'+lab+'</span>'+L.map(v=>'<button type="button" class="cand" data-v="'+esc(v)+'" aria-pressed="'+($(f).value===v)+'">'+esc(fmt(v))+'</button>').join('');
+  el.onclick=e=>{const b=e.target.closest('.cand');if(!b)return;$(f).value=b.dataset.v;$(f).dataset.auto='';el.querySelectorAll('.cand').forEach(x=>x.setAttribute('aria-pressed',x===b))}}}
 function fromInput(e){const f=e.target.files[0];e.target.value='';if(!f)return;if(history.state&&history.state.sheet==='as')history.replaceState(null,'');closeSheets();startAdd(f)}
 $('cam').onchange=fromInput;$('pick').onchange=fromInput;$('pick2').onchange=fromInput;$('addBtn').onclick=()=>openSheet('as');
 $('fSave').onclick=async()=>{const num=(v)=>Math.max(0,parseInt(v,10)||0);const r=editing?{...editing}:{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now(),img:draftImg};
@@ -182,6 +252,6 @@ setInterval(()=>{if(!document.hidden)checkVersion()},15*60*1000);addEventListene
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVersion();render()}});
 try{if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update().catch(()=>{})).catch(()=>{})}catch(e){}
 // ---------- boot ----------
-window.app={get recs(){return recs},parseReceipt,ocr,put,FREE_LIMIT,get LIMIT_ON(){return LIMIT_ON}};
+window.app={get recs(){return recs},parseReceipt,readReceipt,ocr,put,FREE_LIMIT,get LIMIT_ON(){return LIMIT_ON}};
 window.app.ready=(async()=>{try{db=await idb();await loadAll()}catch(e){flash('⚠️ Storage is blocked (private browsing?). Receipts won\u2019t be kept.')}try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}render();checkVersion()})();
 </script></body></html>
