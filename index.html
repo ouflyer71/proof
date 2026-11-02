@@ -22,19 +22,23 @@ section{background:var(--card);border-radius:14px;padding:12px;margin:12px 0}
 .ocrbar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:6px}.ocrbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
 .dots{text-align:center;margin-top:8px}.dots span{display:inline-block;width:10px;height:10px;border-radius:5px;background:var(--mut);margin:0 4px;opacity:.4}.dots span.on{opacity:1;background:var(--acc)}
 body.srch .homeonly{display:none!important}
-</style></head><body>
+.addopt{font-size:21px;min-height:76px;box-sizing:border-box}.addopt .hint{display:block;font-size:15px;font-weight:400;opacity:.9;margin-top:4px}</style></head><body>
 <div id="flash"></div>
 <h1><span><img src="icon-192.png" alt="" style="width:30px;height:30px;border-radius:7px;vertical-align:-6px"> ↩ Clock</span> <button class="sec" id="theme" aria-label="Light or dark">🌓</button></h1>
 <section id="welcome" style="display:none;border:2px solid var(--acc)"><div id="wSlide"></div><div class="dots" id="wDots"></div><div class="row"><button class="sec" id="wSkip">Skip</button><button id="wNext">Next</button></div></section>
 <section id="remind" role="alert"></section>
-<div class="row"><label class="btn" style="flex:2">📷 Add receipt<input id="cam" type="file" accept="image/*" capture="environment" hidden></label><label class="btn sec" style="flex:1">🖼️ Photos<input id="pick" type="file" accept="image/*" hidden></label></div>
+<button id="addBtn" style="display:block;width:100%;font-size:21px;min-height:60px">➕ Add receipt</button><p style="text-align:center;margin:8px 0 4px"><label id="pickLink" style="color:var(--acc);font-size:17px;text-decoration:underline;cursor:pointer;padding:8px;display:inline-block">or pick a saved photo →<input id="pick2" type="file" accept="image/*" hidden></label></p>
 <section><b>Find a receipt</b><div class="row"><input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" placeholder="drill, Lowe's, tv…"><button id="qClear" class="sec" style="flex:0 0 auto;display:none">✕ Clear</button><button id="mic" class="sec" style="flex:0 0 auto" aria-label="Say what to find">🎤</button></div><div id="res"></div></section>
 <section class="homeonly" id="soonSec"><b>⏰ Expiring soon</b> <span class="meta">(next 30 days)</span><div id="soon"></div></section>
 <section class="homeonly"><b>🧾 All receipts</b> <span class="meta" id="cnt"></span><div id="all"></div></section>
 <section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p>
 <div class="row"><button class="sec" id="helpBtn">❓ How it works</button><a class="btn sec" href="privacy.html" style="text-decoration:none;color:var(--fg);font-size:19px;min-height:52px;padding:10px 16px;border-radius:10px;border:2px solid var(--mut);display:inline-flex;align-items:center;justify-content:center;font-weight:600">🔒 Privacy</a></div></section>
-<p class="meta" id="ver" style="text-align:center">↩ Clock · v2</p>
+<p class="meta" id="ver" style="text-align:center">↩ Clock · v3</p>
 
+<div class="sheet" id="as"><div class="bd" data-close></div><div class="pn" role="dialog" aria-label="Add receipt"><h2 style="margin-top:0">Add a receipt</h2>
+<label class="btn addopt" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:16px">📷 Take photo<input id="cam" type="file" accept="image/*" capture="environment" hidden><span class="hint">Snap a paper receipt</span></label>
+<label class="btn addopt" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:16px">🖼️ Choose from Photos<input id="pick" type="file" accept="image/*" hidden><span class="hint">Use a receipt already on your phone</span></label>
+<button class="sec" data-close style="display:block;width:100%">Cancel</button></div></div>
 <div class="sheet" id="fs"><div class="bd" data-close></div><div class="pn">
 <h2 id="fTitle" style="margin:4px 0">New receipt</h2><img id="fImg" class="big" alt="" style="max-height:30vh">
 <div id="ocrBox" class="meta" style="display:none"><span id="ocrMsg">Reading receipt on your phone…</span><div class="ocrbar"><i id="ocrBar"></i></div></div>
@@ -54,7 +58,7 @@ body.srch .homeonly{display:none!important}
 <div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've used your 10 free receipts!</h2><p><b>Unlock unlimited receipts: $4.99 one-time.</b><br>Pay once, keep it forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock for $4.99 (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
 
 <script>
-const APPV='v2',FREE_LIMIT=10;
+const APPV='v3',FREE_LIMIT=10;
 // Testing toggle: set to false, or open the app once with ?nolimit (stored), to turn the free limit off. ?limit turns it back on.
 let LIMIT_ON=true;try{const s=new URLSearchParams(location.search);if(s.has('nolimit'))localStorage.setItem('proof.nolimit','1');if(s.has('limit'))localStorage.removeItem('proof.nolimit');if(localStorage.getItem('proof.nolimit')==='1')LIMIT_ON=false}catch(e){}
 const $=id=>document.getElementById(id),DAY=864e5;
@@ -135,7 +139,8 @@ async function startAdd(file){if(!file)return;if(LIMIT_ON&&recs.length>=FREE_LIM
  try{const t0=Date.now();const txt=await ocr(img);const p=parseReceipt(txt);window.__lastOCR={txt,p,ms:Date.now()-t0};
   if(editing===null&&draftImg===img){for(const[k,f]of[['item','fItem'],['store','fStore'],['total','fTotal']])if(p[k]&&!$(f).value)$(f).value=p[k];if(p.date)$('fDate').value=p.date;$('ocrMsg').textContent='✅ Filled in what I could read. Check it and fix anything off.';$('ocrBar').style.width='100%'}}
  catch(e){console.warn(e);$('ocrMsg').textContent='Couldn\u2019t read it automatically. Just type the details.'}}
-$('cam').onchange=e=>{startAdd(e.target.files[0]);e.target.value=''};$('pick').onchange=e=>{startAdd(e.target.files[0]);e.target.value=''};
+function fromInput(e){const f=e.target.files[0];e.target.value='';if(!f)return;if(history.state&&history.state.sheet==='as')history.replaceState(null,'');closeSheets();startAdd(f)}
+$('cam').onchange=fromInput;$('pick').onchange=fromInput;$('pick2').onchange=fromInput;$('addBtn').onclick=()=>openSheet('as');
 $('fSave').onclick=async()=>{const num=(v)=>Math.max(0,parseInt(v,10)||0);const r=editing?{...editing}:{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now(),img:draftImg};
  Object.assign(r,{item:$('fItem').value.trim(),store:$('fStore').value.trim(),date:$('fDate').value,total:$('fTotal').value.replace(/[^\d.]/g,''),note:$('fNote').value.trim(),ret:num($('fRet').value),war:num($('fWar').value)});
  if(!r.item&&!r.store){flash('Add what you bought or the store.');$('fItem').focus();return}
@@ -173,6 +178,7 @@ function vnum(v){return parseInt(String(v).replace(/\D/g,''),10)||0}
 async function checkVersion(){try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=(await r.json()).version;if(vnum(v)>vnum(APPV))showUpdate(v)}catch(e){}}
 function showUpdate(v){if($('upd'))return;const b=document.createElement('button');b.id='upd';b.textContent='🔄 New version available ('+v+') — tap to update';b.style.cssText='display:block;width:100%;margin:0 0 10px';b.onclick=hardUpdate;document.body.insertBefore(b,document.body.firstChild)}
 async function hardUpdate(){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}catch(e){}try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k.startsWith('proof-')).map(k=>caches.delete(k)))}catch(e){}location.replace(location.pathname+'?v='+Date.now())}
+setInterval(()=>{if(!document.hidden)checkVersion()},15*60*1000);addEventListener('pageshow',e=>{if(e.persisted)checkVersion()});addEventListener('online',checkVersion);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVersion();render()}});
 try{if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update().catch(()=>{})).catch(()=>{})}catch(e){}
 // ---------- boot ----------
