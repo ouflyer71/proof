@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Proof</title><link rel="manifest" href="manifest.json"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f4f8f"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111418"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Proof"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>↩ Clock</title><link rel="manifest" href="manifest.json"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f4f8f"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111418"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="↩ Clock"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{--bg:#fff;--fg:#111;--card:#eef2f7;--acc:#1f4f8f;--mut:#555;--warn:#b35c00;--bad:#b3261e;--ok:#1f6f3f}
 body.dark{--bg:#111418;--fg:#f2f2f2;--card:#1d232b;--acc:#3a72c4;--mut:#aaa;--warn:#ffb059;--bad:#ff8a80;--ok:#6fd394;color-scheme:dark}
@@ -24,16 +24,16 @@ section{background:var(--card);border-radius:14px;padding:12px;margin:12px 0}
 body.srch .homeonly{display:none!important}
 </style></head><body>
 <div id="flash"></div>
-<h1>🧾 Proof <button class="sec" id="theme" aria-label="Light or dark">🌓</button></h1>
+<h1><span><img src="icon-192.png" alt="" style="width:30px;height:30px;border-radius:7px;vertical-align:-6px"> ↩ Clock</span> <button class="sec" id="theme" aria-label="Light or dark">🌓</button></h1>
 <section id="welcome" style="display:none;border:2px solid var(--acc)"><div id="wSlide"></div><div class="dots" id="wDots"></div><div class="row"><button class="sec" id="wSkip">Skip</button><button id="wNext">Next</button></div></section>
 <section id="remind" role="alert"></section>
 <div class="row"><label class="btn" style="flex:2">📷 Add receipt<input id="cam" type="file" accept="image/*" capture="environment" hidden></label><label class="btn sec" style="flex:1">🖼️ Photos<input id="pick" type="file" accept="image/*" hidden></label></div>
-<section><b>Find proof</b><div class="row"><input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" placeholder="drill, Lowe's, tv…"><button id="qClear" class="sec" style="flex:0 0 auto;display:none">✕ Clear</button><button id="mic" class="sec" style="flex:0 0 auto" aria-label="Say what to find">🎤</button></div><div id="res"></div></section>
+<section><b>Find a receipt</b><div class="row"><input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" placeholder="drill, Lowe's, tv…"><button id="qClear" class="sec" style="flex:0 0 auto;display:none">✕ Clear</button><button id="mic" class="sec" style="flex:0 0 auto" aria-label="Say what to find">🎤</button></div><div id="res"></div></section>
 <section class="homeonly" id="soonSec"><b>⏰ Expiring soon</b> <span class="meta">(next 30 days)</span><div id="soon"></div></section>
 <section class="homeonly"><b>🧾 All receipts</b> <span class="meta" id="cnt"></span><div id="all"></div></section>
 <section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p>
 <div class="row"><button class="sec" id="helpBtn">❓ How it works</button><a class="btn sec" href="privacy.html" style="text-decoration:none;color:var(--fg);font-size:19px;min-height:52px;padding:10px 16px;border-radius:10px;border:2px solid var(--mut);display:inline-flex;align-items:center;justify-content:center;font-weight:600">🔒 Privacy</a></div></section>
-<p class="meta" id="ver" style="text-align:center">Proof · v1</p>
+<p class="meta" id="ver" style="text-align:center">↩ Clock · v2</p>
 
 <div class="sheet" id="fs"><div class="bd" data-close></div><div class="pn">
 <h2 id="fTitle" style="margin:4px 0">New receipt</h2><img id="fImg" class="big" alt="" style="max-height:30vh">
@@ -51,10 +51,10 @@ body.srch .homeonly{display:none!important}
 <div class="sheet" id="ds"><div class="bd" data-close></div><div class="pn"><div id="dBody"></div>
 <div class="row"><button id="dShare">📤 Share proof</button><button class="sec" id="dEdit">✏️ Edit</button></div><div class="row"><button class="sec" data-close>Close</button></div></div></div>
 
-<div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've saved 20 receipts!</h2><p>That's the free limit. Unlock Proof once and keep unlimited receipts forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock forever (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
+<div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've used your 10 free receipts!</h2><p><b>Unlock unlimited receipts: $4.99 one-time.</b><br>Pay once, keep it forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock for $4.99 (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
 
 <script>
-const APPV='v1',FREE_LIMIT=20;
+const APPV='v2',FREE_LIMIT=10;
 // Testing toggle: set to false, or open the app once with ?nolimit (stored), to turn the free limit off. ?limit turns it back on.
 let LIMIT_ON=true;try{const s=new URLSearchParams(location.search);if(s.has('nolimit'))localStorage.setItem('proof.nolimit','1');if(s.has('limit'))localStorage.removeItem('proof.nolimit');if(localStorage.getItem('proof.nolimit')==='1')LIMIT_ON=false}catch(e){}
 const $=id=>document.getElementById(id),DAY=864e5;
@@ -140,7 +140,7 @@ $('fSave').onclick=async()=>{const num=(v)=>Math.max(0,parseInt(v,10)||0);const 
  Object.assign(r,{item:$('fItem').value.trim(),store:$('fStore').value.trim(),date:$('fDate').value,total:$('fTotal').value.replace(/[^\d.]/g,''),note:$('fNote').value.trim(),ret:num($('fRet').value),war:num($('fWar').value)});
  if(!r.item&&!r.store){flash('Add what you bought or the store.');$('fItem').focus();return}
  try{await put(r)}catch(e){flash('⚠️ Could not save. Phone storage may be full.');return}
- const was=!!editing;editing=null;draftImg=null;history.state&&history.state.sheet?history.back():closeSheets();render();flash(was?'✅ Updated':'✅ Saved. Proof is safe on your phone.');if(LIMIT_ON&&!was&&recs.length===FREE_LIMIT-3)setTimeout(()=>flash('Heads up: 3 free receipts left.'),2800)};
+ const was=!!editing;editing=null;draftImg=null;history.state&&history.state.sheet?history.back():closeSheets();render();flash(was?'✅ Updated':'✅ Saved. Your receipt is safe on your phone.');if(LIMIT_ON&&!was&&recs.length===FREE_LIMIT-3)setTimeout(()=>flash('Heads up: 3 free receipts left.'),2800)};
 // ---------- detail card ----------
 let cur=null;
 function openCard(id){cur=recs.find(r=>r.id===id);if(!cur)return;const r=cur,re=retEnd(r),we=warEnd(r);
@@ -153,9 +153,9 @@ $('dShare').onclick=async()=>{const r=cur;if(!r||!r.img){flash('No photo to shar
  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]})}else{const a=document.createElement('a');a.href=r.img;a.download=name;a.click()}}catch(e){if(e.name!=='AbortError')flash('Sharing is not available here.')}};
 $('uBuy').onclick=()=>flash('Unlock is coming soon. Thanks for testing!');
 // ---------- backup / restore ----------
-$('bk').onclick=async()=>{const data=JSON.stringify({app:'proof',version:APPV,exported:new Date().toISOString(),receipts:recs});const name='proof-backup-'+iso(new Date())+'.json';const f=new File([data],name,{type:'application/json'});
+$('bk').onclick=async()=>{const data=JSON.stringify({app:'proof',version:APPV,exported:new Date().toISOString(),receipts:recs});const name='return-clock-backup-'+iso(new Date())+'.json';const f=new File([data],name,{type:'application/json'});
  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]})}else{const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}localStorage.setItem('proof.lastBk',JSON.stringify(Date.now()));render();flash('💾 Backup ready ('+recs.length+' receipts)')}catch(e){if(e.name!=='AbortError')flash('Backup failed.')}};
-$('imp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const j=JSON.parse(await f.text());if(j.app!=='proof'||!Array.isArray(j.receipts))throw 0;let n=0;for(const r of j.receipts){if(r&&r.id&&!recs.some(x=>x.id===r.id)){await put(r);n++}}render();flash('📂 Restored '+n+' receipt'+(n===1?'':'s')+' (kept everything you had)')}catch(_){flash('That file is not a Proof backup.')}};
+$('imp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const j=JSON.parse(await f.text());if((j.app!=='proof'&&j.app!=='clock')||!Array.isArray(j.receipts))throw 0;let n=0;for(const r of j.receipts){if(r&&r.id&&!recs.some(x=>x.id===r.id)){await put(r);n++}}render();flash('📂 Restored '+n+' receipt'+(n===1?'':'s')+' (kept everything you had)')}catch(_){flash('That file is not a ↩ Clock backup.')}};
 // ---------- voice ----------
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)$('mic').style.visibility='hidden';
 $('mic').onclick=()=>{if(!SR)return;const r=new SR();r.lang='en-US';r.interimResults=false;r.onresult=e=>{$('q').value=e.results[0][0].transcript.replace(/^(where'?s|find|show me)\s+(my|the)?\s*/i,'').replace(/\s*receipt\s*$/i,'');render()};r.onerror=()=>flash('Didn\u2019t catch that.');r.start();flash('🎤 Listening… say what you bought')};
@@ -163,7 +163,7 @@ $('mic').onclick=()=>{if(!SR)return;const r=new SR();r.lang='en-US';r.interimRes
 let th=localStorage.getItem('proof.theme')||'auto';const mq=matchMedia('(prefers-color-scheme: dark)');function applyTheme(){document.body.classList.toggle('dark',th==='dark'||(th==='auto'&&mq.matches))}mq.addEventListener&&mq.addEventListener('change',applyTheme);applyTheme();
 $('theme').onclick=()=>{const dark=document.body.classList.contains('dark');th=dark?'light':'dark';localStorage.setItem('proof.theme',th);applyTheme()};
 // ---------- welcome ----------
-const WS=[['🧾','Snap a receipt','Tap <b>📷 Add receipt</b>. Proof reads the store, date and total right on your phone.'],['⏰','Never miss a deadline','Pick the return window and warranty. Proof warns you a week before either one ends.'],['🔒','Private by design','No account, no cloud. Your receipts never leave this phone. Back up to a file whenever you like.']];let wi=0;
+const WS=[['🧾','Snap a receipt','Tap <b>📷 Add receipt</b>. ↩ Clock reads the store, date and total right on your phone.'],['⏰','Never miss a deadline','Pick the return window and warranty. ↩ Clock warns you a week before either one ends.'],['🔒','Private by design','No account, no cloud. Your receipts never leave this phone. Back up to a file whenever you like.']];let wi=0;
 function wDraw(){const s=WS[wi];$('wSlide').innerHTML='<div style="font-size:48px;text-align:center">'+s[0]+'</div><h2 style="text-align:center;margin:4px 0">'+s[1]+'</h2><p style="text-align:center">'+s[2]+'</p>';$('wDots').innerHTML=WS.map((_,i)=>'<span class="'+(i===wi?'on':'')+'"></span>').join('');$('wNext').textContent=wi===WS.length-1?'Get started':'Next'}
 function wDone(){$('welcome').style.display='none';localStorage.setItem('proof.welcomed','1')}
 $('wNext').onclick=()=>{if(wi<WS.length-1){wi++;wDraw()}else wDone()};$('wSkip').onclick=wDone;$('helpBtn').onclick=()=>{wi=0;wDraw();$('welcome').style.display='block';scrollTo(0,0)};
