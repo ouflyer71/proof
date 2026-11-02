@@ -6,6 +6,7 @@ body.dark{--bg:#111418;--fg:#f2f2f2;--card:#1d232b;--acc:#3a72c4;--mut:#aaa;--wa
 *{box-sizing:border-box}body{margin:0 auto;font:19px/1.4 system-ui,sans-serif;background:var(--bg);color:var(--fg);padding:12px;max-width:700px}
 h1{font-size:24px;margin:6px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
 input,select,textarea{width:100%;font-size:19px;padding:11px;border:2px solid var(--mut);border-radius:10px;background:var(--bg);color:var(--fg);font-family:inherit}
+*,*::before,*::after{box-sizing:border-box}.dt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:8px 0;width:100%}.dt>div{min-width:0}input,select,textarea{max-width:100%;min-width:0}input[type=date]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:50px;min-height:50px;line-height:24px;text-align:left}input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}#fTotal{height:50px}@media(max-width:374px){.dt{grid-template-columns:minmax(0,1fr)}}
 input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
 button,label.btn{font-size:19px;min-height:52px;min-width:52px;padding:10px 16px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 button.sec,label.sec{background:var(--card);color:var(--fg);border:2px solid var(--mut)}button.danger{background:var(--bad);color:#fff}
@@ -33,7 +34,7 @@ body.srch .homeonly{display:none!important}
 <section class="homeonly"><b>🧾 All receipts</b> <span class="meta" id="cnt"></span><div id="all"></div></section>
 <section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p>
 <div class="row"><button class="sec" id="helpBtn">❓ How it works</button><a class="btn sec" href="privacy.html" style="text-decoration:none;color:var(--fg);font-size:19px;min-height:52px;padding:10px 16px;border-radius:10px;border:2px solid var(--mut);display:inline-flex;align-items:center;justify-content:center;font-weight:600">🔒 Privacy</a></div></section>
-<p class="meta" id="ver" style="text-align:center">↩ Clock · v4</p>
+<p class="meta" id="ver" style="text-align:center">↩ Clock · v5</p>
 
 <div class="sheet" id="as"><div class="bd" data-close></div><div class="pn" role="dialog" aria-label="Add receipt"><h2 style="margin-top:0">Add a receipt</h2>
 <label class="btn addopt" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:16px">📷 Take photo<input id="cam" type="file" accept="image/*" capture="environment" hidden><span class="hint">Snap a paper receipt</span></label>
@@ -44,7 +45,7 @@ body.srch .homeonly{display:none!important}
 <div id="ocrBox" class="meta" style="display:none"><span id="ocrMsg">Reading receipt on your phone…</span><div id="ocrHint" class="chk" style="display:none">🔎 Check these. Tap a suggestion below a box to fix it.</div><div class="ocrbar"><i id="ocrBar"></i></div></div>
 <label class="f" for="fItem">What did you buy?</label><input id="fItem" placeholder="Cordless drill"><div class="cands" id="cItem"></div>
 <label class="f" for="fStore">Store</label><input id="fStore" placeholder="Lowe's"><div class="cands" id="cStore"></div>
-<div class="row"><div><label class="f" for="fDate">Date</label><input id="fDate" type="date"></div><div><label class="f" for="fTotal">Total $</label><input id="fTotal" inputmode="decimal" placeholder="0.00"></div></div><div class="cands" id="cDate"></div><div class="cands" id="cTotal"></div>
+<div class="dt"><div><label class="f" for="fDate">Date</label><input id="fDate" type="date"></div><div><label class="f" for="fTotal">Total $</label><input id="fTotal" inputmode="decimal" placeholder="0.00"></div></div><div class="cands" id="cDate"></div><div class="cands" id="cTotal"></div>
 <label class="f">Return window</label><div class="chips" id="retC"></div><input id="fRet" inputmode="numeric" placeholder="days" style="display:none">
 <label class="f">Warranty</label><div class="chips" id="warC"></div><input id="fWar" inputmode="numeric" placeholder="months" style="display:none">
 <label class="f" for="fNote">Notes <span class="meta">(serial #, model, anything)</span></label><input id="fNote">
@@ -58,7 +59,7 @@ body.srch .homeonly{display:none!important}
 <div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've used your 10 free receipts!</h2><p><b>Unlock unlimited receipts: $4.99 one-time.</b><br>Pay once, keep it forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock for $4.99 (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
 
 <script>
-const APPV='v4',FREE_LIMIT=10;
+const APPV='v5',FREE_LIMIT=10;
 // Testing toggle: set to false, or open the app once with ?nolimit (stored), to turn the free limit off. ?limit turns it back on.
 let LIMIT_ON=true;try{const s=new URLSearchParams(location.search);if(s.has('nolimit'))localStorage.setItem('proof.nolimit','1');if(s.has('limit'))localStorage.removeItem('proof.nolimit');if(localStorage.getItem('proof.nolimit')==='1')LIMIT_ON=false}catch(e){}
 const $=id=>document.getElementById(id),DAY=864e5;
@@ -145,15 +146,29 @@ const NOT_ITEM=/total|tax\b|change|cash|visa|master|debit|credit|card|balance|du
 const normLine=l=>l.replace(/[|_~“”"]+/g,' ').replace(/\s+/g,' ').trim();
 const fixNum=l=>l.replace(/(^|\s)[sS§](?=\d[\d,]*\.\d{2}\b)/g,'$1$').replace(/(\d),(\d{2})(?!\d)/g,'$1.$2');
 function amounts(l){const out=[];const re=/\$?\s?(\d{1,3}(?:[,.]\d{3})+|\d{1,6})[.](\d{2})(?!\d)/g;let m;const s=fixNum(l);while(m=re.exec(s)){const v=parseFloat(m[1].replace(/[,.]/g,'')+'.'+m[2]);if(v>0&&v<1e6)out.push(v)}return out}
+function amountsX(l){const out=[];const re=/\$?\s?(\d{1,3}(?:[,.]\d{3})+|\d{1,6})[.](\d{2})(?!\d)/g;let m;const s=fixNum(l);while(m=re.exec(s)){const int=m[1].replace(/[,.]/g,'');const v=parseFloat(int+'.'+m[2]);if(v>0&&v<1e6)out.push({v,int,dec:m[2],sep:/[,.]/.test(m[1])})}return out}
 function money(v){return v.toFixed(2)}
 function isoD(y,m,d){if(y<100)y+=2000;if(m<1||m>12||d<1||d>31||y<2000||y>2099)return null;return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
+function fixModel(s){return s.replace(/\b(Tesla\s+)Mo[dc]\w{0,3}\s*([3SXY])\b/i,(m,a,b)=>a+'Model '+b.toUpperCase()).replace(/\b(Model [3SXY]|Cybertruck)\s+(?:[A-Za-z|]{1,2}\s+)+(registration)$/i,'$1 $2').replace(/\bF[-\s]?(150|250|350)\b/i,'F-$1').replace(/\bSilverad\w*/i,'Silverado').replace(/\bCamr\w*/i,'Camry')}
 function parseReceipt(text,opt={}){const raw=text.split(/\n/).map(normLine).filter(Boolean);const L=raw.length;const out={cand:{}};
- // ---- total
+ // ---- total (v5: $-misread repair, arithmetic cross-checks, plausibility)
  const TL=/\b(t?otal|grand total|amount paid|amt paid|amount charged|charged|amount due|balance due|balance|amount|paid)\b/i,BAD=/sub\s*-?\s*t?otal|\btax\b|savings|discount|you saved|change|tip\b|fee\b/i;
- const tc=new Map();const add=(v,s)=>{const k=money(v);const o=tc.get(k)||{s:0,n:0};o.s=Math.max(o.s,s);if(s>=7)o.n++;tc.set(k,o)};
- raw.forEach((l,i)=>{let a=amounts(l);if(/sub\s*-?\s*t?otal/i.test(l))a.forEach(v=>{const k=money(v);const o=tc.get(k)||{s:1,n:0};o.n++;tc.set(k,o)});const isT=TL.test(l)&&!BAD.test(l);if(isT){let s=/t?otal\b|amount paid|charged/i.test(l)?10:7;if(!a.length&&i+1<L)a=amounts(raw[i+1]);a.forEach(v=>add(v,s+v/1e7))}else a.forEach(v=>add(v,1+v/1e7))});
- // prefer the largest amount among the strongest (total-labelled) lines
- const tl=[...tc.entries()].map(([k,o])=>[k,o.s+(o.n>1?2*(o.n-1):0)]).sort((a,b)=>b[1]-a[1]||parseFloat(b[0])-parseFloat(a[0]));if(tl.length){const top=tl[0][1];const best=tl.filter(e=>e[1]>=top-1&&e[1]>=7).sort((a,b)=>parseFloat(b[0])-parseFloat(a[0]));const pick=best.length?best[0]:tl[0];out.total=pick[0];out.cand.total=[...new Set([pick[0],...tl.map(e=>e[0])])].slice(0,3);out.totalSure=pick[1]>=7&&!best.some(e=>e!==pick&&e[1]>=pick[1]-1)}
+ const C=new Map();const get=v=>{const k=money(v);let o=C.get(k);if(!o){o={k,v:+k,s:0,n:0,occ:0,nc:0,alt:0,sib:null};C.set(k,o)}return o};
+ raw.forEach((l,i)=>{let A=amountsX(l);const sub=/sub\s*-?\s*t?otal/i.test(l);const hdr=/descr|qty|price|fee\s+amount|item\s+amount/i.test(l);const isT=TL.test(l)&&!BAD.test(l)&&!hdr;const s=isT?(/t?otal\b|amount paid|charged/i.test(l)?10:7):1;if(isT&&!A.length&&i+1<L&&!BAD.test(raw[i+1]))A=amountsX(raw[i+1]);
+  A.forEach(a=>{const o=get(a.v);o.s=Math.max(o.s,s);o.occ++;if(s>=7||sub)o.n++;if(!a.sep&&a.v>=1000)o.nc=1;
+   // a "$" read as 9/5/8/6/3 glued to the front: also consider the amount without that digit
+   if(!a.sep&&a.v>=1000&&/^[95863]\d{3,}$/.test(a.int)){const alt=get(parseFloat(a.int.slice(1)+'.'+a.dec));alt.s=Math.max(alt.s,s-1);alt.alt=1;if(s>=7||sub)alt.n++;alt.occ++;o.sib=alt.k;alt.sib=o.k}})});
+ const all=[...C.values()];const real=all.filter(o=>o.occ>(o.alt?1:0)||!o.alt);
+ const pairs=c=>{const o=[];for(const a of real)for(const b of real){if(a===b||a.k===c.k||b.k===c.k||a.v>=c.v||b.v>=c.v||a.v<b.v)continue;if(Math.abs(a.v+b.v-c.v)<0.011)o.push([a,b])}return o};const sumHit=c=>pairs(c).length>0;
+ const tl=all.map(o=>{let sc=o.s+(o.n>1?2*(o.n-1):0)+Math.min(2,(o.occ-1)*.5);if(sumHit(o))sc+=6;
+  const others=real.filter(x=>x!==o&&x.k!==o.sib).map(x=>x.v);const m2=others.length?Math.max(...others):0;
+  if(o.nc&&o.v>=10000)sc-=4;else if(o.nc&&o.sib)sc-=2;if(o.v>=1000&&m2&&o.v>3*m2)sc-=5;return [o.k,sc,o]});const byK=new Map(tl.map(e=>[e[0],e]));
+ // amount + fee/tax = total: if a strong candidate plus a small add-on equals c, c is the real total
+ for(const e of tl){if(e[1]<3)continue;for(const[a,b]of pairs(e[2])){const ea=byK.get(a.k);if(ea&&ea[1]>=7&&b.v<=a.v*.3)e[1]=Math.max(e[1],ea[1]+1)}}
+ tl.sort((a,b)=>b[1]-a[1]||b[2].v-a[2].v);out._tl=tl.slice(0,6).map(e=>e[0]+":"+e[1].toFixed(1));
+ if(tl.length){const pick=tl[0];out.total=pick[0];const pd=pick[0].replace('.','');
+  const ok=tl.filter(e=>e===pick||(e[1]>=3&&e[1]>=pick[1]-6&&e[2].v>=pick[2].v*.1&&e[0]!==pick[2].sib&&!pd.endsWith(e[0].replace('.',''))&&!e[0].replace('.','').endsWith(pd)&&!(e[2].sib&&tl[0][2].sib===e[0])));
+  out.cand.total=ok.slice(0,3).map(e=>e[0]);out.totalSure=pick[1]>=7&&!ok.some(e=>e!==pick&&e[1]>=pick[1]-1)}
  // ---- dates
  const dc=new Map();const addD=(d,s)=>{if(!d)return;const t=new Date(d+'T12:00');const now=Date.now();if(t-now>2*864e5||now-t>15*365*864e5)return;dc.set(d,(dc.get(d)||0)+s)};
  raw.forEach(l=>{const near=/date|issued|purchased|sold|trans/i.test(l)?1:0;let m;
@@ -169,12 +184,13 @@ function parseReceipt(text,opt={}){const raw=text.split(/\n/).map(normLine).filt
   const pos=i/L;let s=0;if(/\b(agency|store|stores|inc|llc|co|company|market|mart|pharmacy|hardware|supply|depot|outlet|services?|motors|auto|tire|feed|foods?|grocery|center|shop)\b/i.test(c))s+=6;if(pos<.25)s+=4-pos*8;if(/\b(st|street|rd|road|ave|blvd|hwy|suite|ok|tx|ks|ar|mo)\b\.?\s*\d*$/i.test(c)||/^\d/.test(l))s-=6;
   if(s>2)sc.push([c.replace(/^\d+\s*-\s*/,'').replace(/\b([A-Z])([A-Z]+)\b/g,(m,a,b)=>a+b.toLowerCase()),s])});
  const seen=new Set(),st=sc.sort((a,b)=>b[1]-a[1]).filter(([s])=>{const k=s.toLowerCase();if([...seen].some(x=>x.includes(k)||k.includes(x)))return false;seen.add(k);return true});
- st.splice(1,9,...st.slice(1).filter(e=>e[1]>=6));if(st.length){out.store=st[0][0];out.cand.store=st.slice(0,3).map(e=>e[0]);out.storeSure=st[0][1]>=10}
+ const junkS=x=>{const w=x.split(/\s+/);return /\.[a-z]{2,}\b|www|@/i.test(x)||/[a-z][A-Z]/.test(x)||/\d/.test(x)||w.filter(t=>t.length<3).length*3>=w.length||/fee|recycl|tax\b|penalty|inches|interest/i.test(x)};const known=new Set(STORES);for(let i=st.length-1;i>=0;i--)if(!known.has(st[i][0])&&(junkS(st[i][0])||(i>0&&st[i][1]<6)))st.splice(i,1);if(st.length){out.store=st[0][0];out.cand.store=st.slice(0,3).map(e=>e[0]);out.storeSure=st[0][1]>=10}
  // ---- item
  const ic=[];const veh=/regist|tag agency|decal|title fee|excise/i.test(text);
  raw.forEach(l=>{let m=l.match(/(?:^|\D|\d{0,2}?)((?:19|20)\d\d)\s+([A-Za-z][A-Za-z-]+(?:\s+[A-Za-z0-9-]+){0,4})/);if(m&&BRANDS.test(m[2])){let s=m[1]+' '+m[2].replace(/\b(\w)(\w*)/g,(x,a,b)=>a.toUpperCase()+b.toLowerCase()).replace(/\bMotors\b/,'').replace(/\s+/g,' ').trim();if(veh)s+=' registration';ic.push([s.replace(/\s+[-–]\s*/g," ").replace(/\s+/g," "),20])}});
  raw.forEach((l,i)=>{if(NOT_ITEM.test(l))return;const a=amounts(l);if(!a.length)return;let c=fixNum(l).replace(/\$?\s?\d[\d,]*\.\d{2}.*$/,'').replace(/\b\d{5,}\b/g,'').replace(/^[^A-Za-z]+/,'').replace(/\s+[A-Z]$/,'').replace(/[^A-Za-z0-9)"]+$/,'').trim();const letters=(c.match(/[A-Za-z]/g)||[]).length;if(letters<4||letters/c.length<.55)return;ic.push([c,5+(BRANDS.test(c)?6:0)+Math.min(3,c.length/10)-i/L])});
- const s2=[],it=ic.sort((a,b)=>b[1]-a[1]).filter(([s])=>{const k=s.toLowerCase();if(s2.some(x=>x.startsWith(k)||k.startsWith(x)))return false;s2.push(k);return true});
+ ic.forEach(e=>{if(e[1]>=20){e[0]=fixModel(e[0]);const yc=ic.filter(x=>x[1]>=20&&x[0].slice(0,4)===e[0].slice(0,4)).length;e[1]+=(/Model [3SXY]\b|F-\d50|[A-Z][a-z]{3,}\s+(?:[A-Z][a-z]{2,}|\d)/.test(e[0].slice(5))?5:0)+Math.min(3,e[0].length/12)+yc*.5-(/\b[A-Za-z]{1,2}\s+registration$/.test(e[0])?3:0)}});const vc=ic.filter(e=>e[1]>=20);if(vc.length>1){const yv={};vc.forEach(e=>{const y=e[0].slice(0,4);yv[y]=(yv[y]||0)+1});const yr=Object.keys(yv).sort((a,b)=>yv[b]-yv[a])[0];const mm=vc.map(e=>e[0].slice(5)).filter(x=>/Model [3SXY]\b/.test(x)).sort((a,b)=>a.length-b.length)[0];const top=vc.sort((a,b)=>b[1]-a[1])[0];if(mm&&yv[yr]>=Math.max(...Object.values(yv))&&top[0].split(' ')[1]===mm.split(' ')[0])ic.push([yr+' '+mm,top[1]+1])}
+ const best=Math.max(0,...ic.map(e=>e[1]));const s2=[],it=ic.sort((a,b)=>b[1]-a[1]).filter(([s,sc])=>{if(best>=10&&sc<10&&(/fee|tax\b|penalty|recycl|interest|verification|insurance|surcharge|inches|vehic|^registration$|^\W*\w{0,2}\s*registration\b/i.test(s)||!/[aeiou]/i.test(s)))return false;const k=s.toLowerCase().replace(/[^a-z0-9]/g,'');if(s2.some(x=>x.startsWith(k)||k.startsWith(x)))return false;s2.push(k);return true});
  if(it.length){out.item=it[0][0];out.cand.item=it.slice(0,3).map(e=>e[0]);out.itemSure=it[0][1]>=10}
  return out}
 // ---------- read: prep + OCR passes, merged ----------
