@@ -34,7 +34,7 @@ body.srch .homeonly{display:none!important}
 <section class="homeonly"><b>🧾 All receipts</b> <span class="meta" id="cnt"></span><div id="all"></div></section>
 <section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p>
 <div class="row"><button class="sec" id="helpBtn">❓ How it works</button><a class="btn sec" href="privacy.html" style="text-decoration:none;color:var(--fg);font-size:19px;min-height:52px;padding:10px 16px;border-radius:10px;border:2px solid var(--mut);display:inline-flex;align-items:center;justify-content:center;font-weight:600">🔒 Privacy</a></div></section>
-<p class="meta" id="ver" style="text-align:center">↩ Clock · v5</p>
+<p class="meta" id="ver" style="text-align:center">↩ Clock · v6</p>
 
 <div class="sheet" id="as"><div class="bd" data-close></div><div class="pn" role="dialog" aria-label="Add receipt"><h2 style="margin-top:0">Add a receipt</h2>
 <label class="btn addopt" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:16px">📷 Take photo<input id="cam" type="file" accept="image/*" capture="environment" hidden><span class="hint">Snap a paper receipt</span></label>
@@ -42,7 +42,7 @@ body.srch .homeonly{display:none!important}
 <button class="sec" data-close style="display:block;width:100%">Cancel</button></div></div>
 <div class="sheet" id="fs"><div class="bd" data-close></div><div class="pn">
 <h2 id="fTitle" style="margin:4px 0">New receipt</h2><img id="fImg" class="big" alt="" style="max-height:30vh">
-<div id="ocrBox" class="meta" style="display:none"><span id="ocrMsg">Reading receipt on your phone…</span><div id="ocrHint" class="chk" style="display:none">🔎 Check these. Tap a suggestion below a box to fix it.</div><div class="ocrbar"><i id="ocrBar"></i></div></div>
+<div id="ocrBox" class="meta" style="display:none"><span id="ocrMsg">Reading receipt on your phone…</span><a href="#" id="rawLink" style="display:none;font-size:15px;color:var(--acc);margin:4px 0;width:max-content">🔍 Show what it read</a><div id="ocrHint" class="chk" style="display:none">🔎 Check these. Tap a suggestion below a box to fix it.</div><div class="ocrbar"><i id="ocrBar"></i></div></div>
 <label class="f" for="fItem">What did you buy?</label><input id="fItem" placeholder="Cordless drill"><div class="cands" id="cItem"></div>
 <label class="f" for="fStore">Store</label><input id="fStore" placeholder="Lowe's"><div class="cands" id="cStore"></div>
 <div class="dt"><div><label class="f" for="fDate">Date</label><input id="fDate" type="date"></div><div><label class="f" for="fTotal">Total $</label><input id="fTotal" inputmode="decimal" placeholder="0.00"></div></div><div class="cands" id="cDate"></div><div class="cands" id="cTotal"></div>
@@ -56,10 +56,11 @@ body.srch .homeonly{display:none!important}
 <div class="sheet" id="ds"><div class="bd" data-close></div><div class="pn"><div id="dBody"></div>
 <div class="row"><button id="dShare">📤 Share proof</button><button class="sec" id="dEdit">✏️ Edit</button></div><div class="row"><button class="sec" data-close>Close</button></div></div></div>
 
+<div id="rawV" role="dialog" aria-label="What it read" style="display:none;position:fixed;inset:0;z-index:999;background:var(--bg);color:var(--fg);padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));flex-direction:column;gap:10px"><div style="display:flex;gap:8px;align-items:center"><b style="flex:1;font-size:19px">What it read</b><button id="rawCopy" class="sec" style="flex:0 0 auto">📋 Copy</button><button id="rawClose" class="sec" style="flex:0 0 auto">Done</button></div><p class="meta" style="margin:0">Raw text from each reading pass. It stays on your phone. Copy it only if you want to share it.</p><pre id="rawTxt" style="flex:1;overflow:auto;margin:0;padding:10px;border:2px solid var(--mut);border-radius:10px;font:13px/1.35 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-word;-webkit-overflow-scrolling:touch"></pre></div>
 <div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've used your 10 free receipts!</h2><p><b>Unlock unlimited receipts: $4.99 one-time.</b><br>Pay once, keep it forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock for $4.99 (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
 
 <script>
-const APPV='v5',FREE_LIMIT=10;
+const APPV='v6',FREE_LIMIT=10;
 // Testing toggle: set to false, or open the app once with ?nolimit (stored), to turn the free limit off. ?limit turns it back on.
 let LIMIT_ON=true;try{const s=new URLSearchParams(location.search);if(s.has('nolimit'))localStorage.setItem('proof.nolimit','1');if(s.has('limit'))localStorage.removeItem('proof.nolimit');if(localStorage.getItem('proof.nolimit')==='1')LIMIT_ON=false}catch(e){}
 const $=id=>document.getElementById(id),DAY=864e5;
@@ -81,6 +82,8 @@ function retEnd(r){const d=pd(r.date);return d&&r.ret>0?new Date(d.getTime()+r.r
 function warEnd(r){const d=pd(r.date);return d&&r.war>0?addM(d,r.war):null}
 function left(e){return e?Math.round((e-today())/DAY):null}
 ['fItem','fStore','fTotal','fDate'].forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.touched=1;$(i).dataset.auto=''}));
+$('rawLink').onclick=e=>{e.preventDefault();$('rawV').style.display='flex'};$('rawClose').onclick=()=>{$('rawV').style.display='none'};
+$('rawCopy').onclick=async()=>{const t=$('rawTxt').textContent;try{await navigator.clipboard.writeText(t);flash('📋 Copied. Paste it wherever you like.')}catch(e){const r=document.createRange();r.selectNodeContents($('rawTxt'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);try{document.execCommand('copy');flash('📋 Copied.')}catch(_){flash('Select the text and copy it.')}}};
 function fmtD(d){return d?d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):''}
 function pill(label,e){const n=left(e);if(n==null)return'';const c=n<0?'':n<=7?'b':n<=30?'w':'g';return '<span class="pill '+c+'">'+label+': '+(n<0?'ended':n===0?'today':n+'d left')+'</span>'}
 function soonest(r){const ns=[left(retEnd(r)),left(warEnd(r))].filter(n=>n!=null&&n>=0);return ns.length?Math.min(...ns):null}
@@ -104,7 +107,7 @@ document.addEventListener('click',e=>{const c=e.target.closest('.rc');if(c)openC
 $('q').oninput=render;$('qClear').onclick=()=>{$('q').value='';render();$('q').focus()};
 // ---------- sheets + back button ----------
 function openSheet(id){closeSheets(true);$(id).classList.add('on');document.body.style.overflow='hidden';history.pushState({sheet:id},'')}
-function closeSheets(quiet){document.querySelectorAll('.sheet.on').forEach(s=>s.classList.remove('on'));document.body.style.overflow=''}
+function closeSheets(quiet){const rv=document.getElementById('rawV');if(rv)rv.style.display='none';document.querySelectorAll('.sheet.on').forEach(s=>s.classList.remove('on'));document.body.style.overflow=''}
 addEventListener('popstate',()=>closeSheets());addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.sheet.on'))history.back()});
 // ---------- photo ----------
 function resize(file,max=1280){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,max/Math.max(w,h));const c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.82))};im.onerror=()=>{URL.revokeObjectURL(u);no(new Error('img'))};im.src=u})}
@@ -144,31 +147,45 @@ const MONS={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,
 const BRANDS=/\b(tesla|ford|chevrolet|chevy|gmc|ram|dodge|jeep|toyota|honda|nissan|hyundai|kia|subaru|mazda|bmw|mercedes|audi|lexus|volkswagen|vw|buick|cadillac|chrysler|lincoln|polaris|kubota|john deere|yamaha|harley|dewalt|milwaukee|makita|ryobi|craftsman|stihl|husqvarna|samsung|lg|sony|apple|iphone|ipad|macbook|dell|hp|lenovo|vizio|tcl|whirlpool|ge|frigidaire|kitchenaid|maytag|dyson|shark|traeger|weber|yeti)\b/i;
 const NOT_ITEM=/total|tax\b|change|cash|visa|master|debit|credit|card|balance|due|tender|savings|discount|amex|auth|approv|terminal|trace|batch|ref no|trans|entry|subtotal|fee:|thank|receipt|store #|phone|tel\b|www|\.com|p\.?o\.? box|description|amount paid/i;
 const normLine=l=>l.replace(/[|_~“”"]+/g,' ').replace(/\s+/g,' ').trim();
-const fixNum=l=>l.replace(/(^|\s)[sS§](?=\d[\d,]*\.\d{2}\b)/g,'$1$').replace(/(\d),(\d{2})(?!\d)/g,'$1.$2');
+const fixNum=l=>l.replace(/(^|\s)[sS§](?=\d[\d,]*\.\d{2}\b)/g,'$1$').replace(/(\d),(\d{2})(?!\d)/g,'$1.$2').replace(/\$\s?(\d{1,3}) (\d{3}\.\d{2})(?!\d)/g,'$$$1,$2');
 function amounts(l){const out=[];const re=/\$?\s?(\d{1,3}(?:[,.]\d{3})+|\d{1,6})[.](\d{2})(?!\d)/g;let m;const s=fixNum(l);while(m=re.exec(s)){const v=parseFloat(m[1].replace(/[,.]/g,'')+'.'+m[2]);if(v>0&&v<1e6)out.push(v)}return out}
 function amountsX(l){const out=[];const re=/\$?\s?(\d{1,3}(?:[,.]\d{3})+|\d{1,6})[.](\d{2})(?!\d)/g;let m;const s=fixNum(l);while(m=re.exec(s)){const int=m[1].replace(/[,.]/g,'');const v=parseFloat(int+'.'+m[2]);if(v>0&&v<1e6)out.push({v,int,dec:m[2],sep:/[,.]/.test(m[1])})}return out}
 function money(v){return v.toFixed(2)}
 function isoD(y,m,d){if(y<100)y+=2000;if(m<1||m>12||d<1||d>31||y<2000||y>2099)return null;return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
 function fixModel(s){return s.replace(/\b(Tesla\s+)Mo[dc]\w{0,3}\s*([3SXY])\b/i,(m,a,b)=>a+'Model '+b.toUpperCase()).replace(/\b(Model [3SXY]|Cybertruck)\s+(?:[A-Za-z|]{1,2}\s+)+(registration)$/i,'$1 $2').replace(/\bF[-\s]?(150|250|350)\b/i,'F-$1').replace(/\bSilverad\w*/i,'Silverado').replace(/\bCamr\w*/i,'Camry')}
-function parseReceipt(text,opt={}){const raw=text.split(/\n/).map(normLine).filter(Boolean);const L=raw.length;const out={cand:{}};
- // ---- total (v5: $-misread repair, arithmetic cross-checks, plausibility)
+function parseReceipt(text,opt={}){const raw=text.replace(/\f/g,'').split(/\n/).map(normLine).filter(Boolean);const L=raw.length;const out={cand:{}};
+ // ---- total (v6: conservative; repairs need corroboration)
  const TL=/\b(t?otal|grand total|amount paid|amt paid|amount charged|charged|amount due|balance due|balance|amount|paid)\b/i,BAD=/sub\s*-?\s*t?otal|\btax\b|savings|discount|you saved|change|tip\b|fee\b/i;
- const C=new Map();const get=v=>{const k=money(v);let o=C.get(k);if(!o){o={k,v:+k,s:0,n:0,occ:0,nc:0,alt:0,sib:null};C.set(k,o)}return o};
- raw.forEach((l,i)=>{let A=amountsX(l);const sub=/sub\s*-?\s*t?otal/i.test(l);const hdr=/descr|qty|price|fee\s+amount|item\s+amount/i.test(l);const isT=TL.test(l)&&!BAD.test(l)&&!hdr;const s=isT?(/t?otal\b|amount paid|charged/i.test(l)?10:7):1;if(isT&&!A.length&&i+1<L&&!BAD.test(raw[i+1]))A=amountsX(raw[i+1]);
-  A.forEach(a=>{const o=get(a.v);o.s=Math.max(o.s,s);o.occ++;if(s>=7||sub)o.n++;if(!a.sep&&a.v>=1000)o.nc=1;
-   // a "$" read as 9/5/8/6/3 glued to the front: also consider the amount without that digit
-   if(!a.sep&&a.v>=1000&&/^[95863]\d{3,}$/.test(a.int)){const alt=get(parseFloat(a.int.slice(1)+'.'+a.dec));alt.s=Math.max(alt.s,s-1);alt.alt=1;if(s>=7||sub)alt.n++;alt.occ++;o.sib=alt.k;alt.sib=o.k}})});
- const all=[...C.values()];const real=all.filter(o=>o.occ>(o.alt?1:0)||!o.alt);
- const pairs=c=>{const o=[];for(const a of real)for(const b of real){if(a===b||a.k===c.k||b.k===c.k||a.v>=c.v||b.v>=c.v||a.v<b.v)continue;if(Math.abs(a.v+b.v-c.v)<0.011)o.push([a,b])}return o};const sumHit=c=>pairs(c).length>0;
- const tl=all.map(o=>{let sc=o.s+(o.n>1?2*(o.n-1):0)+Math.min(2,(o.occ-1)*.5);if(sumHit(o))sc+=6;
-  const others=real.filter(x=>x!==o&&x.k!==o.sib).map(x=>x.v);const m2=others.length?Math.max(...others):0;
-  if(o.nc&&o.v>=10000)sc-=4;else if(o.nc&&o.sib)sc-=2;if(o.v>=1000&&m2&&o.v>3*m2)sc-=5;return [o.k,sc,o]});const byK=new Map(tl.map(e=>[e[0],e]));
- // amount + fee/tax = total: if a strong candidate plus a small add-on equals c, c is the real total
- for(const e of tl){if(e[1]<3)continue;for(const[a,b]of pairs(e[2])){const ea=byK.get(a.k);if(ea&&ea[1]>=7&&b.v<=a.v*.3)e[1]=Math.max(e[1],ea[1]+1)}}
- tl.sort((a,b)=>b[1]-a[1]||b[2].v-a[2].v);out._tl=tl.slice(0,6).map(e=>e[0]+":"+e[1].toFixed(1));
- if(tl.length){const pick=tl[0];out.total=pick[0];const pd=pick[0].replace('.','');
-  const ok=tl.filter(e=>e===pick||(e[1]>=3&&e[1]>=pick[1]-6&&e[2].v>=pick[2].v*.1&&e[0]!==pick[2].sib&&!pd.endsWith(e[0].replace('.',''))&&!e[0].replace('.','').endsWith(pd)&&!(e[2].sib&&tl[0][2].sib===e[0])));
-  out.cand.total=ok.slice(0,3).map(e=>e[0]);out.totalSure=pick[1]>=7&&!ok.some(e=>e!==pick&&e[1]>=pick[1]-1)}
+ const C=new Map();const get=(v,der)=>{const k=money(v);let o=C.get(k);if(!o){o={k,v:+k,s:0,n:0,occ:0,nc:0,der:!!der,raw:[]};C.set(k,o)}if(!der)o.der=false;return o};
+ const blocks=text.split('\f');const sums=new Set();
+ blocks.forEach(bt=>{const bl=bt.split(/\n/).map(normLine).filter(Boolean);const seq=[];
+  bl.forEach((l,i)=>{let A=amountsX(l);const sub=/sub\s*-?\s*t?otal/i.test(l);const hdr=/descr|qty|price|fee\s+amount|item\s+amount/i.test(l);const isT=TL.test(l)&&!BAD.test(l)&&!hdr;const s=isT?(/t?otal\b|amount paid|charged/i.test(l)?10:7):1;
+   if(isT&&!A.length&&i+1<bl.length&&!BAD.test(bl[i+1]))A=amountsX(bl[i+1]);
+   A.forEach(a=>{const o=get(a.v);o.s=Math.max(o.s,s);o.occ++;if(s>=7||sub)o.n++;if(!a.sep&&a.v>=1000)o.nc=1;o.raw.push(a)});
+   // running line-item sum: first amount of each plain line
+   if(A.length){let t=0;for(let j=seq.length-1;j>=0;j--){t+=seq[j];if(seq.length-j>=3&&A.some(a=>Math.abs(a.v-t)<.011)){sums.add(money(t));break}}}
+   if(A.length&&!isT&&!sub)seq.push(A[0].v)})});
+ const orig=[...C.values()];
+ const pairsIn=(c,pool)=>{const o=[];for(const a of pool)for(const b of pool){if(a.k===b.k&&a.occ<2)continue;if(a.k===c.k||b.k===c.k||a.v<b.v||a.v>=c.v)continue;if(Math.abs(a.v+b.v-c.v)<.011)o.push([a,b])}return o};
+ const corr=o=>o.occ>1||sums.has(o.k)||pairsIn(o,orig).length>0;
+ // leading-digit repair ("$" read as 9/5/8/6/3): only for implausible originals, only when the repaired value is corroborated
+ for(const o of orig){const others=orig.filter(x=>x!==o).map(x=>x.v);const m2=others.length?Math.max(...others):0;const implaus=o.v>=1e4&&((o.nc)||!m2||o.v>3*m2)&&!corr(o);o.impl=implaus;if(!implaus)continue;
+  for(const a of o.raw){if(!/^[95863]\d{4,}$/.test(a.int))continue;const rv=parseFloat(a.int.slice(1)+'.'+a.dec);const k=money(rv);const ex=C.get(k);const fake={k,v:rv,occ:0};
+   const cor=(ex&&!ex.der)||sums.has(k)||pairsIn(fake,orig).length;const weakRep=!cor&&o.v>=1e4&&!corr(o);
+   if(cor||weakRep){const d=get(rv,!ex);d.s=Math.max(d.s,o.s-(cor?0:1));d.n+=cor?o.n:0;d.occ+=ex?0:1;d.rep=o.k;o.repTo=k}}}
+ const all=[...C.values()];
+ const tl=all.map(o=>{let sc=o.s+(o.n>1?2*(o.n-1):0)+Math.min(2,(o.occ-1)*.5);if(sums.has(o.k))sc+=6;if(pairsIn(o,all).length)sc+=6;
+  if(o.impl)sc-=(o.repTo?8:4);const mx=Math.max(0,...[...sums].map(Number));if(mx&&o.v<mx-.01&&!corr(o))sc-=6;return [o.k,sc,o]});
+ const byK=new Map(tl.map(e=>[e[0],e]));
+ for(const e of tl){for(const[a,b]of pairsIn(e[2],all)){const ea=byK.get(a.k);if(ea&&(ea[1]>=7||sums.has(a.k))&&b.v<=a.v*.3)e[1]=Math.max(e[1],ea[1]+1)}}
+ // a value that is just the tail of a corroborated larger amount (473.07 of 2,473.07) never beats it
+ for(const e of tl){const d=e[0].replace('.','');for(const f of tl)if(f!==e&&f[2].v>e[2].v&&f[0].replace('.','').endsWith(d)&&(corr(f[2])||f[2].rep)&&!f[2].impl)e[1]=Math.min(e[1],f[1]-1)}
+ tl.sort((a,b)=>b[1]-a[1]||b[2].v-a[2].v);out._tl=tl.slice(0,6).map(e=>e[0]+':'+e[1].toFixed(1));
+ if(tl.length){const pick=tl[0];out.total=pick[0];const po=pick[2];
+  out.totalSure=po.s>=7&&(corr(po)||sums.has(po.k)||po.rep)&&!tl.some(e=>e!==pick&&e[1]>=pick[1]-1);
+  const ok=[pick];const add=e=>{if(e&&!ok.includes(e)&&!e[2].impl&&e[2].v>=po.v*.1&&!(po.repTo===e[0]))ok.push(e)};
+  [...sums].map(k=>byK.get(k)).forEach(add);tl.filter(e=>e[1]>=3).forEach(add);if(!out.totalSure)tl.forEach(e=>ok.length<3&&add(e));
+  out.cand.total=(out.totalSure?ok.filter(e=>e===pick||e[1]>=pick[1]-6):ok).slice(0,3).map(e=>e[0]);out.itemSum=[...sums]}
  // ---- dates
  const dc=new Map();const addD=(d,s)=>{if(!d)return;const t=new Date(d+'T12:00');const now=Date.now();if(t-now>2*864e5||now-t>15*365*864e5)return;dc.set(d,(dc.get(d)||0)+s)};
  raw.forEach(l=>{const near=/date|issued|purchased|sold|trans/i.test(l)?1:0;let m;
@@ -190,7 +207,7 @@ function parseReceipt(text,opt={}){const raw=text.split(/\n/).map(normLine).filt
  raw.forEach(l=>{let m=l.match(/(?:^|\D|\d{0,2}?)((?:19|20)\d\d)\s+([A-Za-z][A-Za-z-]+(?:\s+[A-Za-z0-9-]+){0,4})/);if(m&&BRANDS.test(m[2])){let s=m[1]+' '+m[2].replace(/\b(\w)(\w*)/g,(x,a,b)=>a.toUpperCase()+b.toLowerCase()).replace(/\bMotors\b/,'').replace(/\s+/g,' ').trim();if(veh)s+=' registration';ic.push([s.replace(/\s+[-–]\s*/g," ").replace(/\s+/g," "),20])}});
  raw.forEach((l,i)=>{if(NOT_ITEM.test(l))return;const a=amounts(l);if(!a.length)return;let c=fixNum(l).replace(/\$?\s?\d[\d,]*\.\d{2}.*$/,'').replace(/\b\d{5,}\b/g,'').replace(/^[^A-Za-z]+/,'').replace(/\s+[A-Z]$/,'').replace(/[^A-Za-z0-9)"]+$/,'').trim();const letters=(c.match(/[A-Za-z]/g)||[]).length;if(letters<4||letters/c.length<.55)return;ic.push([c,5+(BRANDS.test(c)?6:0)+Math.min(3,c.length/10)-i/L])});
  ic.forEach(e=>{if(e[1]>=20){e[0]=fixModel(e[0]);const yc=ic.filter(x=>x[1]>=20&&x[0].slice(0,4)===e[0].slice(0,4)).length;e[1]+=(/Model [3SXY]\b|F-\d50|[A-Z][a-z]{3,}\s+(?:[A-Z][a-z]{2,}|\d)/.test(e[0].slice(5))?5:0)+Math.min(3,e[0].length/12)+yc*.5-(/\b[A-Za-z]{1,2}\s+registration$/.test(e[0])?3:0)}});const vc=ic.filter(e=>e[1]>=20);if(vc.length>1){const yv={};vc.forEach(e=>{const y=e[0].slice(0,4);yv[y]=(yv[y]||0)+1});const yr=Object.keys(yv).sort((a,b)=>yv[b]-yv[a])[0];const mm=vc.map(e=>e[0].slice(5)).filter(x=>/Model [3SXY]\b/.test(x)).sort((a,b)=>a.length-b.length)[0];const top=vc.sort((a,b)=>b[1]-a[1])[0];if(mm&&yv[yr]>=Math.max(...Object.values(yv))&&top[0].split(' ')[1]===mm.split(' ')[0])ic.push([yr+' '+mm,top[1]+1])}
- const best=Math.max(0,...ic.map(e=>e[1]));const s2=[],it=ic.sort((a,b)=>b[1]-a[1]).filter(([s,sc])=>{if(best>=10&&sc<10&&(/fee|tax\b|penalty|recycl|interest|verification|insurance|surcharge|inches|vehic|^registration$|^\W*\w{0,2}\s*registration\b/i.test(s)||!/[aeiou]/i.test(s)))return false;const k=s.toLowerCase().replace(/[^a-z0-9]/g,'');if(s2.some(x=>x.startsWith(k)||k.startsWith(x)))return false;s2.push(k);return true});
+ const best=Math.max(0,...ic.map(e=>e[1]));const s2=[],it=ic.sort((a,b)=>b[1]-a[1]).filter(([s,sc])=>{if(sc<20&&(!/[A-Za-z]*[aeiouy][A-Za-z]*/i.test(s)||!s.split(/\s+/).some(w=>/^[A-Za-z][a-z]{3,}$|^[A-Z]{4,}$/.test(w))||/[a-z][A-Z]/.test(s)||(s.match(/[A-Za-z]/g)||[]).length/s.replace(/\s/g,'').length<.7))return false;if(best>=10&&sc<10&&(/fee|tax\b|penalty|recycl|interest|verification|insurance|surcharge|inches|vehic|^registration$|^\W*\w{0,2}\s*registration\b/i.test(s)||!/[aeiou]/i.test(s)))return false;const k=s.toLowerCase().replace(/[^a-z0-9]/g,'');if(s2.some(x=>x.startsWith(k)||k.startsWith(x)))return false;s2.push(k);return true});
  if(it.length){out.item=it[0][0];out.cand.item=it.slice(0,3).map(e=>e[0]);out.itemSure=it[0][1]>=10}
  return out}
 // ---------- read: prep + OCR passes, merged ----------
@@ -198,7 +215,7 @@ async function readReceipt(file,onStep){const im=await loadImg(file);const w=awa
  const run=async(o,psm)=>{const c=prepCanvas(im,o);await w.setParameters({tessedit_pageseg_mode:String(psm)});const r=await w.recognize(c);passes.push({o,txt:r.data.text||'',conf:r.data.confidence||0})};
  const weak=p=>!(p.total&&p.date&&p.store&&p.item)||!p.totalSure;
  const P=[[{bin:false,target:2200,maxUp:1.5},3],[{bin:false,target:1600,maxUp:1.5},6],[{bin:true,target:1600,maxUp:1.5},6]];let txt='',p={cand:{}};
- for(let i=0;i<P.length;i++){if(i&&(!weak(p)||performance.now()-t0>7000))break;onStep&&onStep(i+1,p);await run(P[i][0],P[i][1]);txt=passes.map(x=>x.txt).join('\n');p=parseReceipt(txt)}
+ for(let i=0;i<P.length;i++){if(i&&(!weak(p)||performance.now()-t0>7000))break;onStep&&onStep(i+1,p);await run(P[i][0],P[i][1]);txt=passes.map(x=>x.txt).join('\n\f\n');p=parseReceipt(txt)}
  const conf=Math.max(...passes.map(x=>x.conf));p.conf=Math.round(conf);p.unsure=conf<70||!p.totalSure||!p.dateSure||!p.store||!p.item;p.passes=passes.length;p.ms=Math.round(performance.now()-t0);return {txt,p}}
 
 window.parseReceipt=parseReceipt;
@@ -208,7 +225,7 @@ let editing=null,draftImg=null;
 function chips(el,opts,input,unit){$(el).innerHTML=opts.map(([l,v])=>'<button type="button" class="chip" data-v="'+v+'">'+l+'</button>').join('');$(el).onclick=e=>{const b=e.target.closest('.chip');if(!b)return;setChip(el,input,b.dataset.v);if(b.dataset.v==='c')$(input).focus()}}
 function setChip(el,input,v){const bs=[...$(el).children];let hit=bs.find(b=>b.dataset.v===String(v));if(!hit){hit=bs[bs.length-1];}bs.forEach(b=>b.setAttribute('aria-pressed',b===hit));$(input).style.display=hit.dataset.v==='c'?'':'none';if(hit.dataset.v!=='c')$(input).value=v;else if(v!=='c')$(input).value=v}
 chips('retC',RET,'fRet');chips('warC',WAR,'fWar');
-function fillForm(r){['cItem','cStore','cDate','cTotal'].forEach(i=>$(i).innerHTML='');$('ocrHint').style.display='none';$('fItem').value=r.item||'';$('fStore').value=r.store||'';$('fDate').value=r.date||iso(today());$('fTotal').value=r.total||'';$('fNote').value=r.note||'';setChip('retC','fRet',r.ret??30);setChip('warC','fWar',r.war??12);$('fImg').src=r.img||'';$('fImg').style.display=r.img?'':'none'}
+function fillForm(r){['cItem','cStore','cDate','cTotal'].forEach(i=>$(i).innerHTML='');$('ocrHint').style.display='none';$('rawLink').style.display='none';$('fItem').value=r.item||'';$('fStore').value=r.store||'';$('fDate').value=r.date||iso(today());$('fTotal').value=r.total||'';$('fNote').value=r.note||'';setChip('retC','fRet',r.ret??30);setChip('warC','fWar',r.war??12);$('fImg').src=r.img||'';$('fImg').style.display=r.img?'':'none'}
 async function startAdd(file){if(!file)return;['cItem','cStore','cDate','cTotal'].forEach(i=>$(i).innerHTML='');$('ocrHint').style.display='none';['fItem','fStore','fTotal','fDate'].forEach(i=>{$(i).dataset.auto='';delete $(i).dataset.touched});if(LIMIT_ON&&recs.length>=FREE_LIMIT){openSheet('us');return}
  editing=null;$('fTitle').textContent='New receipt';$('delZone').style.display='none';let img;try{img=await resize(file)}catch(e){flash('Could not open that photo.');return}draftImg=img;fillForm({img});openSheet('fs');
  $('ocrBox').style.display='block';$('ocrMsg').textContent='Reading receipt on your phone… (nothing is uploaded)';$('ocrBar').style.width='0';
@@ -216,7 +233,7 @@ async function startAdd(file){if(!file)return;['cItem','cStore','cDate','cTotal'
   const apply=(p,final)=>{if(!mine())return;const F={item:'fItem',store:'fStore',total:'fTotal'};for(const k in F){const el=$(F[k]);if(p[k]&&(!el.value||el.dataset.auto===el.value)){el.value=p[k];el.dataset.auto=p[k]}}
    if(p.date&&($('fDate').dataset.auto===$('fDate').value||!$('fDate').dataset.touched)){$('fDate').value=p.date;$('fDate').dataset.auto=p.date}showCands(p.cand||{})};
   const r=await readReceipt(file,(i,p)=>{if(!mine())return;if(p&&p.total)apply(p);$('ocrMsg').textContent=i===1?'Reading receipt on your phone… (nothing is uploaded)':'Taking a closer look… (pass '+i+' of 3)';$('ocrBar').style.width=Math.round((i-1)/3*100)+'%'});
-  window.__lastOCR={txt:r.txt,p:r.p,ms:Date.now()-t0};
+  window.__lastOCR={txt:r.txt,p:r.p,ms:Date.now()-t0};if(mine()){$('rawLink').style.display='block';$('rawTxt').textContent='↩ Clock '+APPV+' · '+r.p.passes+' pass(es) · '+r.p.ms+' ms · conf '+r.p.conf+'\nPicked: total '+(r.p.total||'-')+' · date '+(r.p.date||'-')+' · store '+(r.p.store||'-')+'\nTotal scores: '+(r.p._tl||[]).join(', ')+(r.p.itemSum&&r.p.itemSum.length?'\nLine-item sums: '+r.p.itemSum.join(', '):'')+'\n'+r.txt.split('\f').map((t,i)=>'\n===== Pass '+(i+1)+' =====\n'+t.trim()).join('\n')}
   if(mine()){apply(r.p,true);$('ocrMsg').textContent=r.p.unsure?'Read what I could.':'✅ Filled in what I could read. Check it and fix anything off.';$('ocrHint').style.display=r.p.unsure?'':'none';$('ocrBar').style.width='100%'}}
  catch(e){console.warn(e);$('ocrMsg').textContent='Couldn\u2019t read it automatically. Just type the details.'}}
 function fmtD(d){try{return new Date(d+'T12:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
