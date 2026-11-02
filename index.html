@@ -1,0 +1,181 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Proof</title><link rel="manifest" href="manifest.json"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f4f8f"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111418"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Proof"><meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+:root{--bg:#fff;--fg:#111;--card:#eef2f7;--acc:#1f4f8f;--mut:#555;--warn:#b35c00;--bad:#b3261e;--ok:#1f6f3f}
+body.dark{--bg:#111418;--fg:#f2f2f2;--card:#1d232b;--acc:#3a72c4;--mut:#aaa;--warn:#ffb059;--bad:#ff8a80;--ok:#6fd394;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0 auto;font:19px/1.4 system-ui,sans-serif;background:var(--bg);color:var(--fg);padding:12px;max-width:700px}
+h1{font-size:24px;margin:6px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+input,select,textarea{width:100%;font-size:19px;padding:11px;border:2px solid var(--mut);border-radius:10px;background:var(--bg);color:var(--fg);font-family:inherit}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+button,label.btn{font-size:19px;min-height:52px;min-width:52px;padding:10px 16px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+button.sec,label.sec{background:var(--card);color:var(--fg);border:2px solid var(--mut)}button.danger{background:var(--bad);color:#fff}
+.row{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}.row>*{flex:1}
+section{background:var(--card);border-radius:14px;padding:12px;margin:12px 0}
+.meta{color:var(--mut);font-size:15px}label.f{display:block;font-weight:700;margin:10px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.chip{min-height:40px!important;font-size:16px!important;padding:4px 14px!important;border-radius:20px!important;background:var(--bg)!important;color:var(--fg)!important;border:2px solid var(--mut)!important}.chip[aria-pressed=true]{background:var(--acc)!important;color:#fff!important;border-color:var(--acc)!important}
+.rc{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--mut);cursor:pointer;align-items:center}.rc:first-child{border-top:0}.rc img{width:64px;height:64px;object-fit:cover;border-radius:8px;flex:0 0 auto;background:#ccc}.rc .t{font-weight:700}.rc .s{font-size:15px}
+.pill{display:inline-block;font-size:14px;font-weight:700;border-radius:10px;padding:1px 8px;margin:2px 4px 0 0;background:var(--bg);border:1.5px solid var(--mut)}.pill.w{color:var(--warn);border-color:var(--warn)}.pill.b{color:var(--bad);border-color:var(--bad)}.pill.g{color:var(--ok);border-color:var(--ok)}
+.sheet{position:fixed;inset:0;z-index:20;display:none}.sheet.on{display:block}.sheet .bd{position:absolute;inset:0;background:rgba(0,0,0,.45)}.sheet .pn{position:absolute;left:0;right:0;bottom:0;max-height:94vh;overflow:auto;background:var(--bg);border-radius:18px 18px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom));max-width:700px;margin:auto}
+.big{display:block;width:100%;max-height:60vh;object-fit:contain;border-radius:10px;background:#000;margin:6px 0}
+#flash{display:none;position:fixed;bottom:16px;left:16px;right:16px;background:var(--acc);color:#fff;padding:14px;border-radius:10px;text-align:center;z-index:40}
+#remind{display:none;border:2px solid var(--warn)}#remind b{color:var(--warn)}
+.ocrbar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:6px}.ocrbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+.dots{text-align:center;margin-top:8px}.dots span{display:inline-block;width:10px;height:10px;border-radius:5px;background:var(--mut);margin:0 4px;opacity:.4}.dots span.on{opacity:1;background:var(--acc)}
+body.srch .homeonly{display:none!important}
+</style></head><body>
+<div id="flash"></div>
+<h1>🧾 Proof <button class="sec" id="theme" aria-label="Light or dark">🌓</button></h1>
+<section id="welcome" style="display:none;border:2px solid var(--acc)"><div id="wSlide"></div><div class="dots" id="wDots"></div><div class="row"><button class="sec" id="wSkip">Skip</button><button id="wNext">Next</button></div></section>
+<section id="remind" role="alert"></section>
+<div class="row"><label class="btn" style="flex:2">📷 Add receipt<input id="cam" type="file" accept="image/*" capture="environment" hidden></label><label class="btn sec" style="flex:1">🖼️ Photos<input id="pick" type="file" accept="image/*" hidden></label></div>
+<section><b>Find proof</b><div class="row"><input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" placeholder="drill, Lowe's, tv…"><button id="qClear" class="sec" style="flex:0 0 auto;display:none">✕ Clear</button><button id="mic" class="sec" style="flex:0 0 auto" aria-label="Say what to find">🎤</button></div><div id="res"></div></section>
+<section class="homeonly" id="soonSec"><b>⏰ Expiring soon</b> <span class="meta">(next 30 days)</span><div id="soon"></div></section>
+<section class="homeonly"><b>🧾 All receipts</b> <span class="meta" id="cnt"></span><div id="all"></div></section>
+<section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p>
+<div class="row"><button class="sec" id="helpBtn">❓ How it works</button><a class="btn sec" href="privacy.html" style="text-decoration:none;color:var(--fg);font-size:19px;min-height:52px;padding:10px 16px;border-radius:10px;border:2px solid var(--mut);display:inline-flex;align-items:center;justify-content:center;font-weight:600">🔒 Privacy</a></div></section>
+<p class="meta" id="ver" style="text-align:center">Proof · v1</p>
+
+<div class="sheet" id="fs"><div class="bd" data-close></div><div class="pn">
+<h2 id="fTitle" style="margin:4px 0">New receipt</h2><img id="fImg" class="big" alt="" style="max-height:30vh">
+<div id="ocrBox" class="meta" style="display:none"><span id="ocrMsg">Reading receipt on your phone…</span><div class="ocrbar"><i id="ocrBar"></i></div></div>
+<label class="f" for="fItem">What did you buy?</label><input id="fItem" placeholder="Cordless drill">
+<label class="f" for="fStore">Store</label><input id="fStore" placeholder="Lowe's">
+<div class="row"><div><label class="f" for="fDate">Date</label><input id="fDate" type="date"></div><div><label class="f" for="fTotal">Total $</label><input id="fTotal" inputmode="decimal" placeholder="0.00"></div></div>
+<label class="f">Return window</label><div class="chips" id="retC"></div><input id="fRet" inputmode="numeric" placeholder="days" style="display:none">
+<label class="f">Warranty</label><div class="chips" id="warC"></div><input id="fWar" inputmode="numeric" placeholder="months" style="display:none">
+<label class="f" for="fNote">Notes <span class="meta">(serial #, model, anything)</span></label><input id="fNote">
+<div class="row" style="margin-top:14px"><button class="sec" data-close>Cancel</button><button id="fSave">Save</button></div>
+<div id="delZone" style="display:none;margin-top:18px;border-top:1px solid var(--mut);padding-top:12px"><button class="danger" id="fDel" style="width:100%">🗑️ Delete this receipt</button><div id="delAsk" style="display:none" class="row"><b style="flex-basis:100%;color:var(--bad)">Delete for good? This can't be undone.</b><button class="danger" id="delYes">Yes, delete</button><button class="sec" id="delNo">Keep it</button></div></div>
+</div></div>
+
+<div class="sheet" id="ds"><div class="bd" data-close></div><div class="pn"><div id="dBody"></div>
+<div class="row"><button id="dShare">📤 Share proof</button><button class="sec" id="dEdit">✏️ Edit</button></div><div class="row"><button class="sec" data-close>Close</button></div></div></div>
+
+<div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've saved 20 receipts!</h2><p>That's the free limit. Unlock Proof once and keep unlimited receipts forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock forever (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
+
+<script>
+const APPV='v1',FREE_LIMIT=20;
+// Testing toggle: set to false, or open the app once with ?nolimit (stored), to turn the free limit off. ?limit turns it back on.
+let LIMIT_ON=true;try{const s=new URLSearchParams(location.search);if(s.has('nolimit'))localStorage.setItem('proof.nolimit','1');if(s.has('limit'))localStorage.removeItem('proof.nolimit');if(localStorage.getItem('proof.nolimit')==='1')LIMIT_ON=false}catch(e){}
+const $=id=>document.getElementById(id),DAY=864e5;
+function flash(m){const f=$('flash');f.textContent=m;f.style.display='block';clearTimeout(flash.t);flash.t=setTimeout(()=>f.style.display='none',2600)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+// ---------- storage (IndexedDB) ----------
+let db=null,recs=[];
+function idb(){return new Promise((ok,no)=>{const r=indexedDB.open('proof',1);r.onupgradeneeded=()=>{r.result.createObjectStore('r',{keyPath:'id'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+function tx(mode,fn){return new Promise((ok,no)=>{const t=db.transaction('r',mode),s=t.objectStore('r');const out=fn(s);t.oncomplete=()=>ok(out&&out.result);t.onerror=()=>no(t.error);t.onabort=()=>no(t.error)})}
+async function loadAll(){recs=await tx('readonly',s=>s.getAll())||[]}
+async function put(r){await tx('readwrite',s=>s.put(r));const i=recs.findIndex(x=>x.id===r.id);i<0?recs.push(r):recs[i]=r}
+async function del(id){await tx('readwrite',s=>s.delete(id));recs=recs.filter(x=>x.id!==id)}
+// ---------- dates ----------
+function today(){const d=new Date();d.setHours(0,0,0,0);return d}
+function pd(s){if(!s)return null;const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)}
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function addM(d,m){const x=new Date(d);x.setMonth(x.getMonth()+m);return x}
+function retEnd(r){const d=pd(r.date);return d&&r.ret>0?new Date(d.getTime()+r.ret*DAY):null}
+function warEnd(r){const d=pd(r.date);return d&&r.war>0?addM(d,r.war):null}
+function left(e){return e?Math.round((e-today())/DAY):null}
+function fmtD(d){return d?d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):''}
+function pill(label,e){const n=left(e);if(n==null)return'';const c=n<0?'':n<=7?'b':n<=30?'w':'g';return '<span class="pill '+c+'">'+label+': '+(n<0?'ended':n===0?'today':n+'d left')+'</span>'}
+function soonest(r){const ns=[left(retEnd(r)),left(warEnd(r))].filter(n=>n!=null&&n>=0);return ns.length?Math.min(...ns):null}
+// ---------- search (plural + typo tolerant) ----------
+function lev(a,b){const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[b.length]}
+function stem(w){return w.replace(/'s$/,'').replace(/(ies)$/,'y').replace(/(ses|xes|ches|shes)$/,m=>m.slice(0,-2)).replace(/([^s])s$/,'$1')}
+function words(s){return String(s||'').toLowerCase().replace(/[’']/g,"'").split(/[^a-z0-9']+/).filter(Boolean).map(stem)}
+const STOP=new Set(['the','a','an','my','for','from','at','of','receipt','where','is','find','show','me','i','what','did','buy','bought']);
+function score(r,q){const qs=words(q).filter(w=>!STOP.has(w));if(!qs.length)return 0;const hay=words([r.item,r.store,r.note,r.total].join(' '));let sc=0;for(const w of qs){let best=0;for(const h of hay){if(h===w)best=Math.max(best,3);else if(h.startsWith(w)&&w.length>=2)best=Math.max(best,2);else if(w.length>=4&&lev(w,h)<=(w.length>=7?2:1))best=Math.max(best,1)}if(!best)return 0;sc+=best}return sc}
+// ---------- render ----------
+function row(r){const p=pill('Return',retEnd(r))+pill('Warranty',warEnd(r));return '<div class="rc" data-id="'+r.id+'">'+(r.img?'<img alt="" src="'+r.img+'">':'<div style="width:64px;height:64px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:30px;flex:0 0 auto">🧾</div>')+'<div><div class="t">'+esc(r.item||'Receipt')+'</div><div class="s meta">'+esc(r.store||'')+(r.total?' · $'+esc(r.total):'')+(r.date?' · '+fmtD(pd(r.date)):'')+'</div>'+p+'</div></div>'}
+function render(){const q=$('q').value.trim();document.body.classList.toggle('srch',!!q);$('qClear').style.display=q?'':'none';$('mic').style.display=q?'none':'';
+ if(q){const m=recs.map(r=>[score(r,q),r]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);$('res').innerHTML=m.length?'<p class="meta" style="margin:6px 0">🔎 Matches ('+m.length+')</p>'+m.map(row).join(''):'<p class="meta">No receipts match “'+esc(q)+'”.</p>'}else $('res').innerHTML='';
+ const soon=recs.map(r=>[soonest(r),r]).filter(x=>x[0]!=null&&x[0]<=30).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);$('soon').innerHTML=soon.length?soon.map(row).join(''):'<p class="meta">Nothing ends in the next 30 days. 👍</p>';
+ const all=[...recs].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.created-a.created);$('all').innerHTML=all.length?all.map(row).join(''):'<p class="meta">No receipts yet. Tap 📷 Add receipt and snap one.</p>';
+ $('cnt').textContent=recs.length?'('+recs.length+(LIMIT_ON?' of '+FREE_LIMIT+' free':'')+')':'';
+ const urg=recs.flatMap(r=>[['return',retEnd(r),r],['warranty',warEnd(r),r]]).map(([k,e,r])=>[k,left(e),r]).filter(x=>x[1]!=null&&x[1]>=0&&x[1]<=7).sort((a,b)=>a[1]-b[1]);
+ const rm=$('remind');if(urg.length){rm.style.display='block';rm.innerHTML='<b>⏰ Heads up</b>'+urg.map(([k,n,r])=>'<div class="rc" data-id="'+r.id+'" style="border:0;padding:6px 0">'+esc(r.item||r.store||'Receipt')+' — '+k+' ends '+(n===0?'<b>today</b>':'in <b>'+n+' day'+(n>1?'s':'')+'</b>')+'</div>').join('')}else rm.style.display='none';
+ const b=JSON.parse(localStorage.getItem('proof.lastBk')||'null');$('bkInfo').textContent=b?'Last backup: '+new Date(b).toLocaleDateString():'No backup yet.'}
+document.addEventListener('click',e=>{const c=e.target.closest('.rc');if(c)openCard(c.dataset.id);if(e.target.closest('[data-close]'))history.state&&history.state.sheet?history.back():closeSheets()});
+$('q').oninput=render;$('qClear').onclick=()=>{$('q').value='';render();$('q').focus()};
+// ---------- sheets + back button ----------
+function openSheet(id){closeSheets(true);$(id).classList.add('on');document.body.style.overflow='hidden';history.pushState({sheet:id},'')}
+function closeSheets(quiet){document.querySelectorAll('.sheet.on').forEach(s=>s.classList.remove('on'));document.body.style.overflow=''}
+addEventListener('popstate',()=>closeSheets());addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.sheet.on'))history.back()});
+// ---------- photo ----------
+function resize(file,max=1280){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,max/Math.max(w,h));const c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.82))};im.onerror=()=>{URL.revokeObjectURL(u);no(new Error('img'))};im.src=u})}
+// ---------- OCR (Tesseract.js, all files served from this site) ----------
+let worker=null;
+function loadScript(src){return new Promise((ok,no)=>{if(window.Tesseract)return ok();const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)})}
+async function getWorker(){if(worker)return worker;await loadScript('ocr/tesseract.min.js');const base=new URL('ocr/',location.href).href;
+ worker=await Tesseract.createWorker('eng',1,{workerPath:base+'worker.min.js',corePath:base+'core',langPath:base+'lang',workerBlobURL:false,cacheMethod:'none',logger:m=>{if(m.status==='recognizing text')$('ocrBar').style.width=Math.round(m.progress*100)+'%'}});return worker}
+async function ocr(dataUrl){const w=await getWorker();const r=await w.recognize(dataUrl);return r.data.text||''}
+const MON={jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
+function parseReceipt(text){const lines=text.split(/\n/).map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);const amt=/\$?\s?(\d{1,5}[.,]\d{2})\b/;const out={};
+ out.store=(lines.find(l=>/[A-Za-z]{3}/.test(l)&&!/\d{3,}/.test(l)&&!/receipt|welcome|thank|store #|tel|phone/i.test(l))||'').replace(/[^\w&'’ .-]/g,'').trim();
+ const tl=lines.filter(l=>/total|amount due|balance|grand/i.test(l)&&!/sub\s?-?total|tax|savings|items?\b/i.test(l)&&amt.test(l));
+ let tot=tl.length?tl[tl.length-1].match(amt)[1]:null;if(!tot){const all=lines.flatMap(l=>[...l.matchAll(/\d{1,5}[.,]\d{2}\b/g)].map(m=>parseFloat(m[0].replace(',','.'))));if(all.length)tot=Math.max(...all).toFixed(2)}out.total=tot?tot.replace(',','.'):'';
+ let d=null,m;const T=text;
+ if(m=T.match(/\b(20\d\d)[-\/.](\d{1,2})[-\/.](\d{1,2})\b/))d=[+m[1],+m[2],+m[3]];
+ else if(m=T.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/)){let y=+m[3];if(y<100)y+=2000;d=[y,+m[1],+m[2]];if(d[1]>12)d=[y,+m[2],+m[1]]}
+ else if(m=T.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(20\d\d)\b/i))d=[+m[3],MON[m[1].toLowerCase()],+m[2]];
+ if(d&&d[1]>=1&&d[1]<=12&&d[2]>=1&&d[2]<=31)out.date=d[0]+'-'+String(d[1]).padStart(2,'0')+'-'+String(d[2]).padStart(2,'0');
+ const it=lines.find(l=>amt.test(l)&&/[A-Za-z]{3}/.test(l)&&!/total|tax|change|cash|visa|master|debit|credit|card|balance|due|tender|savings|discount|amex|auth/i.test(l));
+ if(it)out.item=it.replace(/\$?\s?\d{1,5}[.,]\d{2}.*$/,'').replace(/\b\d{5,}\b/g,'').replace(/^[^A-Za-z]+/,'').replace(/\s+[A-Z]$/,'').replace(/[^A-Za-z0-9)"]+$/,'').trim();
+ return out}
+window.parseReceipt=parseReceipt;
+// ---------- add / edit form ----------
+const RET=[['None',0],['14d',14],['30d',30],['60d',60],['90d',90],['Other','c']],WAR=[['None',0],['90d',3],['1 yr',12],['2 yr',24],['Custom','c']];
+let editing=null,draftImg=null;
+function chips(el,opts,input,unit){$(el).innerHTML=opts.map(([l,v])=>'<button type="button" class="chip" data-v="'+v+'">'+l+'</button>').join('');$(el).onclick=e=>{const b=e.target.closest('.chip');if(!b)return;setChip(el,input,b.dataset.v);if(b.dataset.v==='c')$(input).focus()}}
+function setChip(el,input,v){const bs=[...$(el).children];let hit=bs.find(b=>b.dataset.v===String(v));if(!hit){hit=bs[bs.length-1];}bs.forEach(b=>b.setAttribute('aria-pressed',b===hit));$(input).style.display=hit.dataset.v==='c'?'':'none';if(hit.dataset.v!=='c')$(input).value=v;else if(v!=='c')$(input).value=v}
+chips('retC',RET,'fRet');chips('warC',WAR,'fWar');
+function fillForm(r){$('fItem').value=r.item||'';$('fStore').value=r.store||'';$('fDate').value=r.date||iso(today());$('fTotal').value=r.total||'';$('fNote').value=r.note||'';setChip('retC','fRet',r.ret??30);setChip('warC','fWar',r.war??12);$('fImg').src=r.img||'';$('fImg').style.display=r.img?'':'none'}
+async function startAdd(file){if(!file)return;if(LIMIT_ON&&recs.length>=FREE_LIMIT){openSheet('us');return}
+ editing=null;$('fTitle').textContent='New receipt';$('delZone').style.display='none';let img;try{img=await resize(file)}catch(e){flash('Could not open that photo.');return}draftImg=img;fillForm({img});openSheet('fs');
+ $('ocrBox').style.display='block';$('ocrMsg').textContent='Reading receipt on your phone… (nothing is uploaded)';$('ocrBar').style.width='0';
+ try{const t0=Date.now();const txt=await ocr(img);const p=parseReceipt(txt);window.__lastOCR={txt,p,ms:Date.now()-t0};
+  if(editing===null&&draftImg===img){for(const[k,f]of[['item','fItem'],['store','fStore'],['total','fTotal']])if(p[k]&&!$(f).value)$(f).value=p[k];if(p.date)$('fDate').value=p.date;$('ocrMsg').textContent='✅ Filled in what I could read. Check it and fix anything off.';$('ocrBar').style.width='100%'}}
+ catch(e){console.warn(e);$('ocrMsg').textContent='Couldn\u2019t read it automatically. Just type the details.'}}
+$('cam').onchange=e=>{startAdd(e.target.files[0]);e.target.value=''};$('pick').onchange=e=>{startAdd(e.target.files[0]);e.target.value=''};
+$('fSave').onclick=async()=>{const num=(v)=>Math.max(0,parseInt(v,10)||0);const r=editing?{...editing}:{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),created:Date.now(),img:draftImg};
+ Object.assign(r,{item:$('fItem').value.trim(),store:$('fStore').value.trim(),date:$('fDate').value,total:$('fTotal').value.replace(/[^\d.]/g,''),note:$('fNote').value.trim(),ret:num($('fRet').value),war:num($('fWar').value)});
+ if(!r.item&&!r.store){flash('Add what you bought or the store.');$('fItem').focus();return}
+ try{await put(r)}catch(e){flash('⚠️ Could not save. Phone storage may be full.');return}
+ const was=!!editing;editing=null;draftImg=null;history.state&&history.state.sheet?history.back():closeSheets();render();flash(was?'✅ Updated':'✅ Saved. Proof is safe on your phone.');if(LIMIT_ON&&!was&&recs.length===FREE_LIMIT-3)setTimeout(()=>flash('Heads up: 3 free receipts left.'),2800)};
+// ---------- detail card ----------
+let cur=null;
+function openCard(id){cur=recs.find(r=>r.id===id);if(!cur)return;const r=cur,re=retEnd(r),we=warEnd(r);
+ const line=(l,e,n)=>e?'<p style="margin:4px 0"><b>'+l+':</b> '+(n<0?'ended '+fmtD(e):'<span class="pill '+(n<=7?'b':n<=30?'w':'g')+'">'+(n===0?'ends today':n+' days left')+'</span> until '+fmtD(e))+'</p>':'<p class="meta" style="margin:4px 0">'+l+': none</p>';
+ $('dBody').innerHTML=(r.img?'<img class="big" src="'+r.img+'" alt="Receipt photo">':'')+'<h2 style="margin:6px 0">'+esc(r.item||'Receipt')+'</h2><p style="margin:4px 0">'+esc(r.store||'')+(r.total?' · <b>$'+esc(r.total)+'</b>':'')+'</p><p class="meta" style="margin:4px 0">Bought '+fmtD(pd(r.date))+'</p>'+line('Return',re,left(re))+line('Warranty',we,left(we))+(r.note?'<p style="margin:4px 0">📝 '+esc(r.note)+'</p>':'');openSheet('ds')}
+$('dEdit').onclick=()=>{const r=cur;closeSheets();history.replaceState({sheet:'fs'},'');editing=r;$('fTitle').textContent='Edit receipt';fillForm(r);$('ocrBox').style.display='none';$('delZone').style.display='block';$('delAsk').style.display='none';$('fDel').style.display='';$('fs').classList.add('on');document.body.style.overflow='hidden'};
+$('fDel').onclick=()=>{$('fDel').style.display='none';$('delAsk').style.display='flex'};$('delNo').onclick=()=>{$('fDel').style.display='';$('delAsk').style.display='none'};
+$('delYes').onclick=async()=>{await del(editing.id);editing=null;history.state&&history.state.sheet?history.back():closeSheets();render();flash('Deleted.')};
+$('dShare').onclick=async()=>{const r=cur;if(!r||!r.img){flash('No photo to share.');return}try{const b=await (await fetch(r.img)).blob();const name=((r.store||'receipt')+'-'+(r.date||'')).replace(/[^\w-]+/g,'_')+'.jpg';const f=new File([b],name,{type:'image/jpeg'});
+ if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]})}else{const a=document.createElement('a');a.href=r.img;a.download=name;a.click()}}catch(e){if(e.name!=='AbortError')flash('Sharing is not available here.')}};
+$('uBuy').onclick=()=>flash('Unlock is coming soon. Thanks for testing!');
+// ---------- backup / restore ----------
+$('bk').onclick=async()=>{const data=JSON.stringify({app:'proof',version:APPV,exported:new Date().toISOString(),receipts:recs});const name='proof-backup-'+iso(new Date())+'.json';const f=new File([data],name,{type:'application/json'});
+ try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]})}else{const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}localStorage.setItem('proof.lastBk',JSON.stringify(Date.now()));render();flash('💾 Backup ready ('+recs.length+' receipts)')}catch(e){if(e.name!=='AbortError')flash('Backup failed.')}};
+$('imp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const j=JSON.parse(await f.text());if(j.app!=='proof'||!Array.isArray(j.receipts))throw 0;let n=0;for(const r of j.receipts){if(r&&r.id&&!recs.some(x=>x.id===r.id)){await put(r);n++}}render();flash('📂 Restored '+n+' receipt'+(n===1?'':'s')+' (kept everything you had)')}catch(_){flash('That file is not a Proof backup.')}};
+// ---------- voice ----------
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)$('mic').style.visibility='hidden';
+$('mic').onclick=()=>{if(!SR)return;const r=new SR();r.lang='en-US';r.interimResults=false;r.onresult=e=>{$('q').value=e.results[0][0].transcript.replace(/^(where'?s|find|show me)\s+(my|the)?\s*/i,'').replace(/\s*receipt\s*$/i,'');render()};r.onerror=()=>flash('Didn\u2019t catch that.');r.start();flash('🎤 Listening… say what you bought')};
+// ---------- theme ----------
+let th=localStorage.getItem('proof.theme')||'auto';const mq=matchMedia('(prefers-color-scheme: dark)');function applyTheme(){document.body.classList.toggle('dark',th==='dark'||(th==='auto'&&mq.matches))}mq.addEventListener&&mq.addEventListener('change',applyTheme);applyTheme();
+$('theme').onclick=()=>{const dark=document.body.classList.contains('dark');th=dark?'light':'dark';localStorage.setItem('proof.theme',th);applyTheme()};
+// ---------- welcome ----------
+const WS=[['🧾','Snap a receipt','Tap <b>📷 Add receipt</b>. Proof reads the store, date and total right on your phone.'],['⏰','Never miss a deadline','Pick the return window and warranty. Proof warns you a week before either one ends.'],['🔒','Private by design','No account, no cloud. Your receipts never leave this phone. Back up to a file whenever you like.']];let wi=0;
+function wDraw(){const s=WS[wi];$('wSlide').innerHTML='<div style="font-size:48px;text-align:center">'+s[0]+'</div><h2 style="text-align:center;margin:4px 0">'+s[1]+'</h2><p style="text-align:center">'+s[2]+'</p>';$('wDots').innerHTML=WS.map((_,i)=>'<span class="'+(i===wi?'on':'')+'"></span>').join('');$('wNext').textContent=wi===WS.length-1?'Get started':'Next'}
+function wDone(){$('welcome').style.display='none';localStorage.setItem('proof.welcomed','1')}
+$('wNext').onclick=()=>{if(wi<WS.length-1){wi++;wDraw()}else wDone()};$('wSkip').onclick=wDone;$('helpBtn').onclick=()=>{wi=0;wDraw();$('welcome').style.display='block';scrollTo(0,0)};
+if(!localStorage.getItem('proof.welcomed')){wDraw();$('welcome').style.display='block'}
+// ---------- updates ----------
+function vnum(v){return parseInt(String(v).replace(/\D/g,''),10)||0}
+async function checkVersion(){try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=(await r.json()).version;if(vnum(v)>vnum(APPV))showUpdate(v)}catch(e){}}
+function showUpdate(v){if($('upd'))return;const b=document.createElement('button');b.id='upd';b.textContent='🔄 New version available ('+v+') — tap to update';b.style.cssText='display:block;width:100%;margin:0 0 10px';b.onclick=hardUpdate;document.body.insertBefore(b,document.body.firstChild)}
+async function hardUpdate(){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}catch(e){}try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k.startsWith('proof-')).map(k=>caches.delete(k)))}catch(e){}location.replace(location.pathname+'?v='+Date.now())}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVersion();render()}});
+try{if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update().catch(()=>{})).catch(()=>{})}catch(e){}
+// ---------- boot ----------
+window.app={get recs(){return recs},parseReceipt,ocr,put,FREE_LIMIT,get LIMIT_ON(){return LIMIT_ON}};
+window.app.ready=(async()=>{try{db=await idb();await loadAll()}catch(e){flash('⚠️ Storage is blocked (private browsing?). Receipts won\u2019t be kept.')}try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}render();checkVersion()})();
+</script></body></html>
