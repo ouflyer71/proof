@@ -28,13 +28,15 @@ body.srch .homeonly{display:none!important}
 <h1><span><img src="icon-192.png" alt="" style="width:30px;height:30px;border-radius:7px;vertical-align:-6px"> ↩ Clock</span> <button class="sec" id="theme" aria-label="Light or dark">🌓</button></h1>
 <section id="welcome" style="display:none;border:2px solid var(--acc)"><div id="wSlide"></div><div class="dots" id="wDots"></div><div class="row"><button class="sec" id="wSkip">Skip</button><button id="wNext">Next</button></div></section>
 <section id="remind" role="alert"></section>
+<section id="calAsk" style="display:none;border:2px solid var(--acc)"></section>
+<section id="badgeAsk" style="display:none"><b>🔴 Show a badge on the app icon when a return is ending soon?</b><p class="meta" style="margin:4px 0">It only shows a number on the icon. No notifications, nothing leaves your phone.</p><div class="row"><button id="bOn">Turn on</button><button id="bNo" class="sec">Not now</button></div></section>
 <button id="addBtn" style="display:block;width:100%;font-size:21px;min-height:60px">➕ Add receipt</button><p style="text-align:center;margin:8px 0 4px"><label id="pickLink" style="color:var(--acc);font-size:17px;text-decoration:underline;cursor:pointer;padding:8px;display:inline-block">or pick a saved photo →<input id="pick2" type="file" accept="image/*" hidden></label></p>
 <section><b>Find a receipt</b><div class="row"><input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" placeholder="drill, Lowe's, tv…"><button id="qClear" class="sec" style="flex:0 0 auto;display:none">✕ Clear</button><button id="mic" class="sec" style="flex:0 0 auto" aria-label="Say what to find">🎤</button></div><div id="res"></div></section>
 <section class="homeonly" id="soonSec"><b>⏰ Expiring soon</b> <span class="meta">(next 30 days)</span><div id="soon"></div></section>
 <section class="homeonly"><b>🧾 All receipts</b> <span class="meta" id="cnt"></span><div id="all"></div></section>
-<section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p>
+<section class="homeonly"><b>Backup</b><p class="meta" style="margin:4px 0">Your receipts live only on this phone. Save a backup file now and then (to Files or iCloud Drive).</p><div class="row"><button id="bk" class="sec">💾 Back up</button><label class="btn sec">📂 Restore<input id="imp" type="file" accept="application/json,.json" hidden></label></div><p class="meta" id="bkInfo"></p><div id="badgeSet" style="display:none;margin-top:10px"><label style="display:flex;gap:10px;align-items:center;font-size:17px"><input type="checkbox" id="bTog" style="width:24px;height:24px;flex:0 0 auto"> 🔴 Badge on app icon when a deadline is 7 days away or less</label></div>
 <div class="row"><button class="sec" id="helpBtn">❓ How it works</button><a class="btn sec" href="privacy.html" style="text-decoration:none;color:var(--fg);font-size:19px;min-height:52px;padding:10px 16px;border-radius:10px;border:2px solid var(--mut);display:inline-flex;align-items:center;justify-content:center;font-weight:600">🔒 Privacy</a></div></section>
-<p class="meta" id="ver" style="text-align:center">↩ Clock · v6</p>
+<p class="meta" id="ver" style="text-align:center">↩ Clock · v7</p>
 
 <div class="sheet" id="as"><div class="bd" data-close></div><div class="pn" role="dialog" aria-label="Add receipt"><h2 style="margin-top:0">Add a receipt</h2>
 <label class="btn addopt" style="display:block;width:100%;text-align:left;margin:0 0 12px;padding:16px">📷 Take photo<input id="cam" type="file" accept="image/*" capture="environment" hidden><span class="hint">Snap a paper receipt</span></label>
@@ -60,7 +62,7 @@ body.srch .homeonly{display:none!important}
 <div class="sheet" id="us"><div class="bd" data-close></div><div class="pn" style="text-align:center"><div style="font-size:56px">🔓</div><h2>You've used your 10 free receipts!</h2><p><b>Unlock unlimited receipts: $4.99 one-time.</b><br>Pay once, keep it forever. No subscription, no account.</p><p class="meta">Payments aren't turned on yet in this test version.</p><button id="uBuy" style="width:100%">Unlock for $4.99 (coming soon)</button><div class="row"><button class="sec" data-close>Not now</button></div></div></div>
 
 <script>
-const APPV='v6',FREE_LIMIT=10;
+const APPV='v7',FREE_LIMIT=10;
 // Testing toggle: set to false, or open the app once with ?nolimit (stored), to turn the free limit off. ?limit turns it back on.
 let LIMIT_ON=true;try{const s=new URLSearchParams(location.search);if(s.has('nolimit'))localStorage.setItem('proof.nolimit','1');if(s.has('limit'))localStorage.removeItem('proof.nolimit');if(localStorage.getItem('proof.nolimit')==='1')LIMIT_ON=false}catch(e){}
 const $=id=>document.getElementById(id),DAY=864e5;
@@ -78,12 +80,58 @@ function today(){const d=new Date();d.setHours(0,0,0,0);return d}
 function pd(s){if(!s)return null;const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)}
 function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function addM(d,m){const x=new Date(d);x.setMonth(x.getMonth()+m);return x}
-function retEnd(r){const d=pd(r.date);return d&&r.ret>0?new Date(d.getTime()+r.ret*DAY):null}
+function retEnd(r){const d=pd(r.date);return d&&r.ret>0?new Date(d.getFullYear(),d.getMonth(),d.getDate()+Number(r.ret)):null}
 function warEnd(r){const d=pd(r.date);return d&&r.war>0?addM(d,r.war):null}
 function left(e){return e?Math.round((e-today())/DAY):null}
 ['fItem','fStore','fTotal','fDate'].forEach(i=>$(i).addEventListener('input',()=>{$(i).dataset.touched=1;$(i).dataset.auto=''}));
 $('rawLink').onclick=e=>{e.preventDefault();$('rawV').style.display='flex'};$('rawClose').onclick=()=>{$('rawV').style.display='none'};
 $('rawCopy').onclick=async()=>{const t=$('rawTxt').textContent;try{await navigator.clipboard.writeText(t);flash('📋 Copied. Paste it wherever you like.')}catch(e){const r=document.createRange();r.selectNodeContents($('rawTxt'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);try{document.execCommand('copy');flash('📋 Copied.')}catch(_){flash('Select the text and copy it.')}}};
+
+// ---- calendar (.ics, built on-device)
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function icsEsc(t){return String(t||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
+function icsFold(l){const enc=new TextEncoder();if(enc.encode(l).length<=75)return l;const out=[];let cur='',n=0,lim=75;for(const ch of l){const b=enc.encode(ch).length;if(n+b>lim){out.push(cur);cur=' ';n=1;lim=75}cur+=ch;n+=b}out.push(cur);return out.join('\r\n')}
+function icsD(d){return iso(d).replace(/-/g,'')}
+function calEvents(r,which){const ev=[],nm=(r.item||'Receipt')+(r.store?' ('+r.store+')':'');const re=retEnd(r),we=warEnd(r);
+ if((which==='ret'||which==='both')&&re)ev.push({t:'ret',d:re,sum:'↩ Return deadline: '+nm,al:[['-P2DT15H','Return window ends in 3 days: '+nm],['PT9H','Last day to return: '+nm]]});
+ if((which==='war'||which==='both')&&we)ev.push({t:'war',d:we,sum:'🛡 Warranty ends: '+nm,al:[['-P29DT15H','Warranty ends in 30 days: '+nm],['PT9H','Warranty ends today: '+nm]]});return ev}
+function makeICS(r,which,now=new Date()){const st=now.toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Clock//Return Clock '+APPV+'//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
+ for(const e of calEvents(r,which)){const nx=new Date(e.d);nx.setDate(nx.getDate()+1);const desc=[r.total?'Total: $'+r.total:'',r.date?'Bought: '+r.date:'',r.store?'Store: '+r.store:'',r.note?'Note: '+r.note:'','Saved in ↩ Clock'].filter(Boolean).join('\n');
+  L.push('BEGIN:VEVENT','UID:'+String(r.id).replace(/[^\w-]/g,'')+'-'+e.t+'@return-clock','DTSTAMP:'+st,'SEQUENCE:'+Math.floor(now.getTime()/1000-1.7e9),'DTSTART;VALUE=DATE:'+icsD(e.d),'DTEND;VALUE=DATE:'+icsD(nx),'SUMMARY:'+icsEsc(e.sum),'DESCRIPTION:'+icsEsc(desc),'TRANSP:TRANSPARENT');
+  for(const[a,m]of e.al)L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(m),'TRIGGER:'+a,'END:VALARM');L.push('END:VEVENT')}
+ L.push('END:VCALENDAR');return L.map(icsFold).join('\r\n')+'\r\n'}
+
+async function addCal(r,which){const txt=makeICS(r,which);if(!/BEGIN:VEVENT/.test(txt)){flash('No upcoming deadline to add.');return}
+ const name=((r.item||'receipt').slice(0,30)+'-'+which).replace(/[^\w-]+/g,'_')+'.ics';const file=new File([txt],name,{type:'text/calendar'});let how='';
+ try{if(IOS&&navigator.serviceWorker&&navigator.serviceWorker.controller&&window.caches){const url=new URL('cal/'+name+'?t='+Date.now(),location.href).href;const c=await caches.open('clockcal');for(const k of await c.keys())await c.delete(k);await c.put(url,new Response(txt,{headers:{'Content-Type':'text/calendar; charset=utf-8'}}));location.href=url;how='sw'}
+  else if(IOS&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});how='share'}
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000);how='dl'}}
+ catch(e){if(e.name==='AbortError')return;try{const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;a.click();how='dl'}catch(_){flash('Could not make the calendar file.');return}}
+ window.__lastICS={txt,how,name};r.cal=Object.assign({},r.cal);for(const e of calEvents(r,which))r.cal[e.t]=iso(e.d);try{await put(r)}catch(e){}
+ render();if($('ds').classList.contains('on')&&cur&&cur.id===r.id)openCard(r.id);showCalAsk(null);
+ flash(how==='dl'?'📅 Calendar file saved. Open it to add the event.':'📅 Tap “Add” in Calendar. Didn’t open? Tap 📅 again → Share file.')}
+async function shareICS(r,which){const txt=makeICS(r,which),f=new File([txt],'deadline.ics',{type:'text/calendar'});try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f]});else{const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download='deadline.ics';a.click()}}catch(e){}}
+function calState(r,t){const e=t==='ret'?retEnd(r):warEnd(r);if(!e||left(e)<0)return null;return r.cal&&r.cal[t]===iso(e)?'added':r.cal&&r.cal[t]?'changed':'new'}
+function calBtns(r,pre){const a=calState(r,'ret'),b=calState(r,'war');if(!a&&!b)return'';const B=(w,l)=>'<button class="'+(w==='both'?'':'sec')+'" data-cal="'+w+'" data-id="'+esc(r.id)+'">'+l+'</button>';
+ return '<div class="row" style="flex-wrap:wrap">'+(a?B('ret','↩ Return'):'')+(b?B('war','🛡 Warranty'):'')+(a&&b?B('both','Both'):'')+'</div>'}
+function showCalAsk(r){const el=$('calAsk');if(!r||(!calState(r,'ret')&&!calState(r,'war'))){el.style.display='none';el.innerHTML='';return}
+ const both=calState(r,'ret')&&calState(r,'war');el.innerHTML='<div style="display:flex;align-items:center;gap:8px"><b style="flex:1">✅ Saved. Add the deadline'+(both?'s':'')+' to your Calendar?</b><button class="sec" id="calX" style="flex:0 0 auto" aria-label="Dismiss">✕</button></div>'+(both?'<p class="meta" style="margin:4px 0">Pick one or both. You get a reminder 3 days before a return ends and 30 days before a warranty ends.</p>'+calBtns(r):'<div class="row"><button data-cal="'+(calState(r,'ret')?'ret':'war')+'" data-id="'+esc(r.id)+'">📅 Add to Calendar</button></div>');el.style.display='block';$('calX').onclick=()=>showCalAsk(null)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-cal]');if(!b)return;e.preventDefault();const r=recs.find(x=>x.id===b.dataset.id);if(!r)return;b.dataset.share?shareICS(r,b.dataset.cal):addCal(r,b.dataset.cal)});
+// ---- app icon badge (count only, never notifications)
+const STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function badgeOK(){return 'setAppBadge' in navigator&&'Notification' in window&&STANDALONE}
+function badgeCount(list=recs,t0=today()){let n=0;for(const r of list){const ds=[retEnd(r),warEnd(r)].filter(Boolean).map(e=>Math.round((e-t0)/DAY));if(ds.some(d=>d>=0&&d<=7))n++}return n}
+
+async function updateBadge(){if(!('setAppBadge' in navigator))return;const on=localStorage.getItem('proof.badge')==='1'&&(!('Notification' in window)||Notification.permission==='granted');const n=on?badgeCount():0;
+ try{n>0?await navigator.setAppBadge(n):await navigator.clearAppBadge()}catch(e){}}
+
+function badgeUI(){const ok=badgeOK();$('badgeSet').style.display=ok?'block':'none';if(!ok){$('badgeAsk').style.display='none';return}
+ $('bTog').checked=localStorage.getItem('proof.badge')==='1'&&Notification.permission==='granted';
+ $('badgeAsk').style.display=(!localStorage.getItem('proof.badgeAsked')&&Notification.permission==='default'&&recs.length>0&&!$('bTog').checked)?'block':'none'}
+async function badgeOn(){let p=Notification.permission;if(p==='default'){try{p=await Notification.requestPermission()}catch(e){p='denied'}}localStorage.setItem('proof.badgeAsked','1');
+ if(p==='granted'){localStorage.setItem('proof.badge','1');flash('🔴 Badge is on.')}else{localStorage.setItem('proof.badge','0');flash(p==='denied'?'Badges are blocked. Turn on Notifications for ↩ Clock in Settings to use them.':'Badge stays off.')}badgeUI();updateBadge()}
+$('bOn').onclick=badgeOn;$('bNo').onclick=()=>{localStorage.setItem('proof.badgeAsked','1');badgeUI()};
+$('bTog').onchange=()=>{if($('bTog').checked)badgeOn();else{localStorage.setItem('proof.badge','0');updateBadge();badgeUI()}};
 function fmtD(d){return d?d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):''}
 function pill(label,e){const n=left(e);if(n==null)return'';const c=n<0?'':n<=7?'b':n<=30?'w':'g';return '<span class="pill '+c+'">'+label+': '+(n<0?'ended':n===0?'today':n+'d left')+'</span>'}
 function soonest(r){const ns=[left(retEnd(r)),left(warEnd(r))].filter(n=>n!=null&&n>=0);return ns.length?Math.min(...ns):null}
@@ -95,7 +143,7 @@ const STOP=new Set(['the','a','an','my','for','from','at','of','receipt','where'
 function score(r,q){const qs=words(q).filter(w=>!STOP.has(w));if(!qs.length)return 0;const hay=words([r.item,r.store,r.note,r.total].join(' '));let sc=0;for(const w of qs){let best=0;for(const h of hay){if(h===w)best=Math.max(best,3);else if(h.startsWith(w)&&w.length>=2)best=Math.max(best,2);else if(w.length>=4&&lev(w,h)<=(w.length>=7?2:1))best=Math.max(best,1)}if(!best)return 0;sc+=best}return sc}
 // ---------- render ----------
 function row(r){const p=pill('Return',retEnd(r))+pill('Warranty',warEnd(r));return '<div class="rc" data-id="'+r.id+'">'+(r.img?'<img alt="" src="'+r.img+'">':'<div style="width:64px;height:64px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:30px;flex:0 0 auto">🧾</div>')+'<div><div class="t">'+esc(r.item||'Receipt')+'</div><div class="s meta">'+esc(r.store||'')+(r.total?' · $'+esc(r.total):'')+(r.date?' · '+fmtD(pd(r.date)):'')+'</div>'+p+'</div></div>'}
-function render(){const q=$('q').value.trim();document.body.classList.toggle('srch',!!q);$('qClear').style.display=q?'':'none';$('mic').style.display=q?'none':'';
+function render(){try{badgeUI();updateBadge()}catch(e){}const q=$('q').value.trim();document.body.classList.toggle('srch',!!q);$('qClear').style.display=q?'':'none';$('mic').style.display=q?'none':'';
  if(q){const m=recs.map(r=>[score(r,q),r]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);$('res').innerHTML=m.length?'<p class="meta" style="margin:6px 0">🔎 Matches ('+m.length+')</p>'+m.map(row).join(''):'<p class="meta">No receipts match “'+esc(q)+'”.</p>'}else $('res').innerHTML='';
  const soon=recs.map(r=>[soonest(r),r]).filter(x=>x[0]!=null&&x[0]<=30).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);$('soon').innerHTML=soon.length?soon.map(row).join(''):'<p class="meta">Nothing ends in the next 30 days. 👍</p>';
  const all=[...recs].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.created-a.created);$('all').innerHTML=all.length?all.map(row).join(''):'<p class="meta">No receipts yet. Tap 📷 Add receipt and snap one.</p>';
@@ -236,8 +284,8 @@ async function startAdd(file){if(!file)return;['cItem','cStore','cDate','cTotal'
   window.__lastOCR={txt:r.txt,p:r.p,ms:Date.now()-t0};if(mine()){$('rawLink').style.display='block';$('rawTxt').textContent='↩ Clock '+APPV+' · '+r.p.passes+' pass(es) · '+r.p.ms+' ms · conf '+r.p.conf+'\nPicked: total '+(r.p.total||'-')+' · date '+(r.p.date||'-')+' · store '+(r.p.store||'-')+'\nTotal scores: '+(r.p._tl||[]).join(', ')+(r.p.itemSum&&r.p.itemSum.length?'\nLine-item sums: '+r.p.itemSum.join(', '):'')+'\n'+r.txt.split('\f').map((t,i)=>'\n===== Pass '+(i+1)+' =====\n'+t.trim()).join('\n')}
   if(mine()){apply(r.p,true);$('ocrMsg').textContent=r.p.unsure?'Read what I could.':'✅ Filled in what I could read. Check it and fix anything off.';$('ocrHint').style.display=r.p.unsure?'':'none';$('ocrBar').style.width='100%'}}
  catch(e){console.warn(e);$('ocrMsg').textContent='Couldn\u2019t read it automatically. Just type the details.'}}
-function fmtD(d){try{return new Date(d+'T12:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
-function showCands(c){const M=[['cItem','fItem',c.item,x=>x],['cStore','fStore',c.store,x=>x],['cDate','fDate',c.date,fmtD],['cTotal','fTotal',c.total,x=>'$'+Number(x).toLocaleString(undefined,{minimumFractionDigits:2})]];
+function fmtDs(d){try{return new Date(d+'T12:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return d}}
+function showCands(c){const M=[['cItem','fItem',c.item,x=>x],['cStore','fStore',c.store,x=>x],['cDate','fDate',c.date,fmtDs],['cTotal','fTotal',c.total,x=>'$'+Number(x).toLocaleString(undefined,{minimumFractionDigits:2})]];
  for(const[box,f,list,fmt]of M){const el=$(box);const L=(list||[]).filter(Boolean).slice(0,3);if(L.length<2&&!(L.length===1&&$(f).value!==L[0])){el.innerHTML='';continue}
   const lab={cItem:'Item?',cStore:'Store?',cDate:'Date?',cTotal:'Total?'}[box];
   el.innerHTML='<span class="lab">'+lab+'</span>'+L.map(v=>'<button type="button" class="cand" data-v="'+esc(v)+'" aria-pressed="'+($(f).value===v)+'">'+esc(fmt(v))+'</button>').join('');
@@ -248,11 +296,11 @@ $('fSave').onclick=async()=>{const num=(v)=>Math.max(0,parseInt(v,10)||0);const 
  Object.assign(r,{item:$('fItem').value.trim(),store:$('fStore').value.trim(),date:$('fDate').value,total:$('fTotal').value.replace(/[^\d.]/g,''),note:$('fNote').value.trim(),ret:num($('fRet').value),war:num($('fWar').value)});
  if(!r.item&&!r.store){flash('Add what you bought or the store.');$('fItem').focus();return}
  try{await put(r)}catch(e){flash('⚠️ Could not save. Phone storage may be full.');return}
- const was=!!editing;editing=null;draftImg=null;history.state&&history.state.sheet?history.back():closeSheets();render();flash(was?'✅ Updated':'✅ Saved. Your receipt is safe on your phone.');if(LIMIT_ON&&!was&&recs.length===FREE_LIMIT-3)setTimeout(()=>flash('Heads up: 3 free receipts left.'),2800)};
+ const was=!!editing;editing=null;draftImg=null;history.state&&history.state.sheet?history.back():closeSheets();render();flash(was?'✅ Updated':'✅ Saved. Your receipt is safe on your phone.');showCalAsk(r);if(LIMIT_ON&&!was&&recs.length===FREE_LIMIT-3)setTimeout(()=>flash('Heads up: 3 free receipts left.'),2800)};
 // ---------- detail card ----------
 let cur=null;
 function openCard(id){cur=recs.find(r=>r.id===id);if(!cur)return;const r=cur,re=retEnd(r),we=warEnd(r);
- const line=(l,e,n)=>e?'<p style="margin:4px 0"><b>'+l+':</b> '+(n<0?'ended '+fmtD(e):'<span class="pill '+(n<=7?'b':n<=30?'w':'g')+'">'+(n===0?'ends today':n+' days left')+'</span> until '+fmtD(e))+'</p>':'<p class="meta" style="margin:4px 0">'+l+': none</p>';
+ const cb=l=>{const t=l==='Return'?'ret':'war',st=calState(r,t);return st?'<div class="row" style="margin:2px 0 8px">'+(st==='added'?'<button class="sec" data-cal="'+t+'" data-id="'+esc(r.id)+'" style="flex:0 0 auto">📅 Added</button><a href="#" data-cal="'+t+'" data-share="1" data-id="'+esc(r.id)+'" style="color:var(--acc);align-self:center;font-size:15px">Share .ics file</a>':'<button class="sec" data-cal="'+t+'" data-id="'+esc(r.id)+'" style="flex:0 0 auto">📅 '+(st==='changed'?'Update in Calendar':'Add to Calendar')+'</button>')+'</div>':''};const line=(l,e,n)=>e?'<p style="margin:4px 0"><b>'+l+':</b> '+(n<0?'ended '+fmtD(e):'<span class="pill '+(n<=7?'b':n<=30?'w':'g')+'">'+(n===0?'ends today':n+' days left')+'</span> until '+fmtD(e))+'</p>'+cb(l):'<p class="meta" style="margin:4px 0">'+l+': none</p>';
  $('dBody').innerHTML=(r.img?'<img class="big" src="'+r.img+'" alt="Receipt photo">':'')+'<h2 style="margin:6px 0">'+esc(r.item||'Receipt')+'</h2><p style="margin:4px 0">'+esc(r.store||'')+(r.total?' · <b>$'+esc(r.total)+'</b>':'')+'</p><p class="meta" style="margin:4px 0">Bought '+fmtD(pd(r.date))+'</p>'+line('Return',re,left(re))+line('Warranty',we,left(we))+(r.note?'<p style="margin:4px 0">📝 '+esc(r.note)+'</p>':'');openSheet('ds')}
 $('dEdit').onclick=()=>{const r=cur;closeSheets();history.replaceState({sheet:'fs'},'');editing=r;$('fTitle').textContent='Edit receipt';fillForm(r);$('ocrBox').style.display='none';$('delZone').style.display='block';$('delAsk').style.display='none';$('fDel').style.display='';$('fs').classList.add('on');document.body.style.overflow='hidden'};
 $('fDel').onclick=()=>{$('fDel').style.display='none';$('delAsk').style.display='flex'};$('delNo').onclick=()=>{$('fDel').style.display='';$('delAsk').style.display='none'};
@@ -283,8 +331,8 @@ function showUpdate(v){if($('upd'))return;const b=document.createElement('button
 async function hardUpdate(){try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}catch(e){}try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k.startsWith('proof-')).map(k=>caches.delete(k)))}catch(e){}location.replace(location.pathname+'?v='+Date.now())}
 setInterval(()=>{if(!document.hidden)checkVersion()},15*60*1000);addEventListener('pageshow',e=>{if(e.persisted)checkVersion()});addEventListener('online',checkVersion);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVersion();render()}});
-try{if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update().catch(()=>{})).catch(()=>{})}catch(e){}
+try{if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update().catch(()=>{})).catch(()=>{})}catch(e){}
 // ---------- boot ----------
-window.app={get recs(){return recs},parseReceipt,readReceipt,ocr,put,FREE_LIMIT,get LIMIT_ON(){return LIMIT_ON}};
+window.app={get recs(){return recs},parseReceipt,readReceipt,ocr,put,del,makeICS,badgeCount,updateBadge,FREE_LIMIT,get LIMIT_ON(){return LIMIT_ON}};
 window.app.ready=(async()=>{try{db=await idb();await loadAll()}catch(e){flash('⚠️ Storage is blocked (private browsing?). Receipts won\u2019t be kept.')}try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}render();checkVersion()})();
 </script></body></html>
